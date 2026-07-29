@@ -72,7 +72,10 @@ export default async function TemplateDetailPage({ params }) {
             <p>Start with the blank format, add your captions, upload a character or logo, and export without a watermark.</p>
 
             <div className="detail-meta">
-              <div><Maximize2 size={16} /><span>Dimensions<strong>{template.width} × {template.height}</strong></span></div>
+              <div>
+                <Maximize2 size={16} />
+                <span>Dimensions<strong>{template.width && template.height ? `${template.width} × ${template.height}` : "Original resolution"}</strong></span>
+              </div>
               <div><WandSparkles size={16} /><span>Text areas<strong>{template.boxCount || 2} suggested</strong></span></div>
             </div>
 

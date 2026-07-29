@@ -68,7 +68,8 @@ export default function TemplateLibrary({ initialTemplates }) {
   const filteredTemplates = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
     const filtered = initialTemplates.filter((template) => {
-      const matchesQuery = !normalizedQuery || template.name.toLowerCase().includes(normalizedQuery);
+      const searchableText = [template.name, ...(template.aliases || [])].join(" ").toLowerCase();
+      const matchesQuery = !normalizedQuery || searchableText.includes(normalizedQuery);
       const matchesCategory =
         category === "All" ||
         (category === "Favorites" ? favorites.includes(template.id) : template.category === category);
@@ -110,7 +111,7 @@ export default function TemplateLibrary({ initialTemplates }) {
           <input
             value={query}
             onChange={(event) => updateParams({ q: event.target.value, page: 1 })}
-            placeholder="Search 100 iconic templates"
+            placeholder={`Search ${initialTemplates.length} iconic templates`}
             aria-label="Search meme templates"
           />
           {query && (

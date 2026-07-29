@@ -4,11 +4,14 @@ export async function GET(request) {
   const asset = request.nextUrl.searchParams.get("asset");
   if (!asset) return NextResponse.json({ error: "Missing image asset." }, { status: 400 });
 
-  if (!/^[a-zA-Z0-9._-]+\.(jpg|jpeg|png|webp)$/i.test(asset)) {
+  if (!/^(?:mg__)?[a-zA-Z0-9._-]+\.(jpg|jpeg|png|webp)$/i.test(asset)) {
     return NextResponse.json({ error: "Invalid image asset." }, { status: 400 });
   }
 
-  const response = await fetch(`https://i.imgflip.com/${asset}`, { next: { revalidate: 86400 } });
+  const sourceUrl = asset.startsWith("mg__")
+    ? `https://api.memegen.link/images/${asset.slice(4)}`
+    : `https://i.imgflip.com/${asset}`;
+  const response = await fetch(sourceUrl, { next: { revalidate: 86400 } });
   if (!response.ok) return NextResponse.json({ error: "Image unavailable." }, { status: response.status });
 
   return new NextResponse(await response.arrayBuffer(), {
