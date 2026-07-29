@@ -122,7 +122,6 @@ main { min-height: 100vh; overflow: hidden; position: relative; }
 .template-card:hover .use-template { transform: translateY(0); }
 .template-info { display: flex; justify-content: space-between; align-items: flex-start; padding: 11px 3px 0; }
 .template-info h3 { font-size: 12px; margin: 0 0 4px; font-weight: 600; }.template-info span { color: #646670; font-size: 9px; }
-.template-info span a { color: #8f7acb; }
 .template-info button { border: 0; background: transparent; color: #60626c; }
 .empty-state { grid-column: 1/-1; min-height: 230px; border-radius: 16px; display: grid; place-content: center; justify-items: center; color: #767883; }
 .empty-state h3 { color: #dedee3; margin: 14px 0 4px; }.empty-state p { margin: 0; font-size: 13px; }
@@ -178,7 +177,6 @@ main { min-height: 100vh; overflow: hidden; position: relative; }
 .canvas-shell { width: min(760px, 100%); min-height: 360px; display: grid; place-items: center; }
 .canvas-shell canvas { display: block; max-width: 100%; max-height: calc(100vh - 180px); box-shadow: 0 30px 80px rgba(0,0,0,.5); }
 .canvas-loading { color: var(--muted); font-size: 12px; }
-.editor-attribution { margin-top: 13px; color: #5f616b; font-size: 9px; text-decoration: underline; text-underline-offset: 3px; }
 
 @media (max-width: 900px) {
   .nav-links { display: none; }
