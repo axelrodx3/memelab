@@ -27,12 +27,11 @@ export async function GET() {
     const templates = payload.data.memes.map((meme) => ({
       id: String(meme.id),
       name: meme.name,
-      url: meme.url,
+      url: `/api/image?asset=${encodeURIComponent(new URL(meme.url).pathname.replace(/^\/+/, ""))}`,
       width: meme.width,
       height: meme.height,
       boxCount: meme.box_count,
-      category: categorize(meme.name),
-      sourceUrl: `https://imgflip.com/memetemplate/${meme.id}`
+      category: categorize(meme.name)
     }));
 
     return NextResponse.json({ templates }, {
