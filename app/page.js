@@ -2,9 +2,11 @@
 
 import {
   ArrowRight,
-  Image as ImageIcon,
+  Flame,
+  MessageCircle,
   Sparkles,
-  Upload
+  TrendingUp,
+  UsersRound
 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -52,30 +54,38 @@ export default function Home() {
         <h1>Every meme starts<br />with a <span>good idea.</span></h1>
         <div className="hero-actions">
           <Link className="primary-cta" href="/templates">Browse templates <ArrowRight size={18} /></Link>
-          <a className="secondary-cta" href="#workspace"><Upload size={18} /> Upload your own</a>
+          <Link className="secondary-cta" href="/community"><UsersRound size={18} /> Enter the community</Link>
         </div>
         <div className="trust-row">
           <span><span className="status-dot" /> Free to use</span>
           <span>No watermarks</span>
-          <span>No account required</span>
+          <span>Built for creators</span>
         </div>
       </section>
 
-      <section className="workspace-cta shell glass" id="workspace">
-        <div className="workspace-copy">
-          <span className="section-label">START FROM SCRATCH</span>
-          <h2>Bring your own image.<br /><span>Make it yours.</span></h2>
-          <p>Start with a photo, character, or logo and build on a clean canvas—no template required.</p>
-          <div className="workspace-action">
-            <button className="primary-cta"><Upload size={18} /> Choose an image</button>
-            <span>No account required</span>
+      <section className="home-community shell glass">
+        <div className="home-community-copy">
+          <span className="section-label">THE COMMUNITY FEED</span>
+          <h2>Post it. Rank it.<br /><span>Talk about it.</span></h2>
+          <p>A living image community where memes, art and internet culture rise through real votes and conversation.</p>
+          <div className="home-community-actions">
+            <Link className="primary-cta" href="/community">Explore the feed <ArrowRight size={17} /></Link>
+            <Link className="secondary-cta" href="/community/create">Create a post</Link>
           </div>
         </div>
-        <div className="drop-zone">
-          <div className="upload-icon"><ImageIcon size={30} /></div>
-          <strong>Drop an image to begin</strong>
-          <span>PNG, JPG or WEBP · Up to 25MB</span>
-          <div className="format-row"><i>PNG</i><i>JPG</i><i>WEBP</i></div>
+        <div className="home-community-preview">
+          <div className="home-feed-card active">
+            <Flame size={18} />
+            <div><strong>Hot</strong><span>What the community is moving now</span></div>
+          </div>
+          <div className="home-feed-card">
+            <TrendingUp size={18} />
+            <div><strong>Community-ranked</strong><span>Upvotes and downvotes decide what rises</span></div>
+          </div>
+          <div className="home-feed-card">
+            <MessageCircle size={18} />
+            <div><strong>Real conversations</strong><span>Comments, profiles and creator karma</span></div>
+          </div>
         </div>
       </section>
 

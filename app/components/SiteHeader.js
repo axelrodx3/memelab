@@ -3,6 +3,7 @@
 import { Clock3, Menu, Plus, X } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import AuthControls from "./AuthControls";
 
 export function BrandMark() {
   return (
@@ -25,7 +26,8 @@ export default function SiteHeader() {
 
       <div className="nav-links">
         <Link href="/templates">Templates</Link>
-        <Link href="/#workspace">Create</Link>
+        <Link href="/community">Community</Link>
+        <Link href="/templates">Studio</Link>
         <Link href="/templates?category=Favorites">Favorites</Link>
       </div>
 
@@ -33,8 +35,8 @@ export default function SiteHeader() {
         <Link className="icon-button" href="/templates?category=Favorites" aria-label="Favorite templates">
           <Clock3 size={18} />
         </Link>
-        <button className="login-button" type="button">Log in</button>
-        <Link className="create-button" href="/templates"><Plus size={17} /> Create</Link>
+        <AuthControls />
+        <Link className="create-button" href="/community/create"><Plus size={17} /> Post</Link>
       </div>
 
       <button
@@ -50,9 +52,10 @@ export default function SiteHeader() {
       {mobileOpen && (
         <div className="mobile-menu glass">
           <Link href="/templates" onClick={() => setMobileOpen(false)}>Templates</Link>
-          <Link href="/#workspace" onClick={() => setMobileOpen(false)}>Create</Link>
+          <Link href="/community" onClick={() => setMobileOpen(false)}>Community</Link>
+          <Link href="/templates" onClick={() => setMobileOpen(false)}>MemeLab Studio</Link>
           <Link href="/templates?category=Favorites" onClick={() => setMobileOpen(false)}>Favorites</Link>
-          <button type="button">Log in <span>Coming soon</span></button>
+          <AuthControls compact />
         </div>
       )}
     </nav>
