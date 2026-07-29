@@ -231,7 +231,7 @@ export default function Home() {
               <div className="template-info">
                 <div>
                   <h3>{template.name}</h3>
-                  <span>{template.category} · <a href={template.sourceUrl} target="_blank" rel="noreferrer">via Imgflip</a></span>
+                  <span>{template.category}</span>
                 </div>
                 <button aria-label={`More options for ${template.name}`}>•••</button>
               </div>
