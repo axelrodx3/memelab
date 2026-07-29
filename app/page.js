@@ -16,9 +16,11 @@ import {
   WandSparkles,
   X
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
 
-const categories = ["Trending", "Classic", "Reaction", "Animals", "Gaming", "Crypto"];
+const categories = ["Trending", "Classic", "Reaction", "Animals", "Movies"];
 
 const templates = [
   { id: 1, title: "Distracted Boyfriend", tag: "Classic", tone: "violet", caption: "ME / A NEW PROJECT" },
@@ -63,22 +65,38 @@ export default function Home() {
   const [activeCategory, setActiveCategory] = useState("Trending");
   const [query, setQuery] = useState("");
   const [favorites, setFavorites] = useState([]);
+  const [liveTemplates, setLiveTemplates] = useState([]);
+  const [templatesLoading, setTemplatesLoading] = useState(true);
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  useEffect(() => {
+    const stored = window.localStorage.getItem("memelab:favorites");
+    if (stored) {
+      try { setFavorites(JSON.parse(stored)); } catch {}
+    }
+
+    fetch("/api/templates")
+      .then((response) => response.json())
+      .then((payload) => setLiveTemplates(payload.templates || []))
+      .finally(() => setTemplatesLoading(false));
+  }, []);
 
   const visibleTemplates = useMemo(() => {
     const normalized = query.trim().toLowerCase();
-    return templates.filter((template) => {
-      const matchesQuery = !normalized || template.title.toLowerCase().includes(normalized);
+    return liveTemplates.filter((template) => {
+      const matchesQuery = !normalized || template.name.toLowerCase().includes(normalized);
       const matchesCategory =
-        activeCategory === "Trending" || template.tag === activeCategory;
+        activeCategory === "Trending" || template.category === activeCategory;
       return matchesQuery && matchesCategory;
     });
-  }, [activeCategory, query]);
+  }, [activeCategory, liveTemplates, query]);
 
   const toggleFavorite = (id) => {
-    setFavorites((current) =>
-      current.includes(id) ? current.filter((item) => item !== id) : [...current, id]
-    );
+    setFavorites((current) => {
+      const next = current.includes(id) ? current.filter((item) => item !== id) : [...current, id];
+      window.localStorage.setItem("memelab:favorites", JSON.stringify(next));
+      return next;
+    });
   };
 
   return (
@@ -188,26 +206,38 @@ export default function Home() {
         </div>
 
         <div className="template-grid" id="all">
+          {templatesLoading && Array.from({ length: 8 }).map((_, index) => (
+            <div className="template-skeleton" key={index}><div /><span /></div>
+          ))}
           {visibleTemplates.map((template) => (
             <article className="template-card" key={template.id}>
               <div className="thumbnail">
-                <TemplateArt template={template} />
+                <Image
+                  className="template-image"
+                  src={template.url}
+                  alt={`${template.name} blank meme template`}
+                  fill
+                  sizes="(max-width: 640px) 50vw, (max-width: 900px) 45vw, 280px"
+                />
                 <button
                   className={favorites.includes(template.id) ? "favorite active" : "favorite"}
                   onClick={() => toggleFavorite(template.id)}
-                  aria-label={`Favorite ${template.title}`}
+                  aria-label={`Favorite ${template.name}`}
                 >
                   <Heart size={17} fill={favorites.includes(template.id) ? "currentColor" : "none"} />
                 </button>
-                <button className="use-template">Use template <ArrowRight size={15} /></button>
+                <Link className="use-template" href={`/editor/${template.id}`}>Use template <ArrowRight size={15} /></Link>
               </div>
               <div className="template-info">
-                <div><h3>{template.title}</h3><span>{template.tag}</span></div>
-                <button aria-label={`More options for ${template.title}`}>•••</button>
+                <div>
+                  <h3>{template.name}</h3>
+                  <span>{template.category} · <a href={template.sourceUrl} target="_blank" rel="noreferrer">via Imgflip</a></span>
+                </div>
+                <button aria-label={`More options for ${template.name}`}>•••</button>
               </div>
             </article>
           ))}
-          {visibleTemplates.length === 0 && (
+          {!templatesLoading && visibleTemplates.length === 0 && (
             <div className="empty-state glass">
               <Search size={24} />
               <h3>No templates found</h3>
