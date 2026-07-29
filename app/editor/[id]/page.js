@@ -66,7 +66,7 @@ export default function MemeEditor() {
     const canvas = canvasRef.current;
     const context = canvas.getContext("2d");
     const base = new window.Image();
-    base.src = `/api/image?url=${encodeURIComponent(template.url)}`;
+    base.src = template.url;
     await base.decode();
 
     const scale = Math.min(1, 1000 / base.naturalWidth);
@@ -158,7 +158,6 @@ export default function MemeEditor() {
             {!template && <div className="canvas-loading">Loading template…</div>}
             <canvas ref={canvasRef} />
           </div>
-          {template && <a className="editor-attribution" href={template.sourceUrl} target="_blank" rel="noreferrer">Template via Imgflip</a>}
         </section>
       </div>
     </main>
