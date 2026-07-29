@@ -2,23 +2,17 @@
 
 import {
   ArrowRight,
-  ChevronDown,
-  Clock3,
   Download,
-  Heart,
   Image as ImageIcon,
   Layers3,
-  Menu,
-  Plus,
-  Search,
   Sparkles,
   Upload,
-  WandSparkles,
-  X
+  WandSparkles
 } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
+import SiteHeader, { BrandMark } from "./components/SiteHeader";
+import TemplateCard from "./components/TemplateCard";
 
 const categories = ["Trending", "Classic", "Reaction", "Animals", "Movies"];
 
@@ -32,15 +26,6 @@ const templates = [
   { id: 7, title: "Always Has Been", tag: "Trending", tone: "blue", caption: "WAIT, IT'S ALL MEMES?" },
   { id: 8, title: "Success Kid", tag: "Classic", tone: "green", caption: "NAILED IT" }
 ];
-
-function BrandMark() {
-  return (
-    <span className="brand-mark" aria-hidden="true">
-      <span />
-      <span />
-    </span>
-  );
-}
 
 function TemplateArt({ template, large = false }) {
   return (
@@ -62,12 +47,9 @@ function TemplateArt({ template, large = false }) {
 }
 
 export default function Home() {
-  const [activeCategory, setActiveCategory] = useState("Trending");
-  const [query, setQuery] = useState("");
   const [favorites, setFavorites] = useState([]);
   const [liveTemplates, setLiveTemplates] = useState([]);
   const [templatesLoading, setTemplatesLoading] = useState(true);
-  const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
     const stored = window.localStorage.getItem("memelab:favorites");
@@ -81,15 +63,7 @@ export default function Home() {
       .finally(() => setTemplatesLoading(false));
   }, []);
 
-  const visibleTemplates = useMemo(() => {
-    const normalized = query.trim().toLowerCase();
-    return liveTemplates.filter((template) => {
-      const matchesQuery = !normalized || template.name.toLowerCase().includes(normalized);
-      const matchesCategory =
-        activeCategory === "Trending" || template.category === activeCategory;
-      return matchesQuery && matchesCategory;
-    });
-  }, [activeCategory, liveTemplates, query]);
+  const featuredTemplates = liveTemplates.slice(0, 8);
 
   const toggleFavorite = (id) => {
     setFavorites((current) => {
@@ -104,39 +78,14 @@ export default function Home() {
       <div className="ambient ambient-one" />
       <div className="ambient ambient-two" />
 
-      <nav className="nav shell">
-        <a className="brand" href="#">
-          <BrandMark />
-          <span>MemeLab</span>
-        </a>
-        <div className="nav-links">
-          <a href="#templates">Templates</a>
-          <a href="#workspace">Create</a>
-          <button className="nav-more">Resources <ChevronDown size={14} /></button>
-        </div>
-        <div className="nav-actions">
-          <button className="icon-button" aria-label="Recent projects"><Clock3 size={18} /></button>
-          <button className="login-button">Log in</button>
-          <button className="create-button"><Plus size={17} /> Create</button>
-        </div>
-        <button className="mobile-toggle" onClick={() => setMobileOpen(!mobileOpen)} aria-label="Toggle navigation">
-          {mobileOpen ? <X /> : <Menu />}
-        </button>
-        {mobileOpen && (
-          <div className="mobile-menu glass">
-            <a href="#templates" onClick={() => setMobileOpen(false)}>Templates</a>
-            <a href="#workspace" onClick={() => setMobileOpen(false)}>Create</a>
-            <button>Log in <span>Coming soon</span></button>
-          </div>
-        )}
-      </nav>
+      <SiteHeader />
 
       <section className="hero shell">
         <div className="eyebrow"><Sparkles size={14} /> Your new creative playground</div>
         <h1>Every meme starts<br />with a <span>good idea.</span></h1>
         <p>Discover iconic templates, remix them in seconds, and make something the internet can’t ignore.</p>
         <div className="hero-actions">
-          <a className="primary-cta" href="#templates">Browse templates <ArrowRight size={18} /></a>
+          <Link className="primary-cta" href="/templates">Browse templates <ArrowRight size={18} /></Link>
           <a className="secondary-cta" href="#workspace"><Upload size={18} /> Upload your own</a>
         </div>
         <div className="trust-row">
@@ -177,73 +126,41 @@ export default function Home() {
           <div>
             <span className="section-label">THE TEMPLATE LIBRARY</span>
             <h2>Find your format.</h2>
-            <p>From internet classics to what’s trending right now.</p>
+            <p>A featured mix from the full MemeLab archive.</p>
           </div>
-          <a href="#all">Explore all templates <ArrowRight size={16} /></a>
+          <Link href="/templates">Explore all templates <ArrowRight size={16} /></Link>
         </div>
 
-        <div className="library-tools">
+        <div className="library-tools featured-tools">
           <div className="categories">
             {categories.map((category) => (
-              <button
+              <Link
                 key={category}
-                className={activeCategory === category ? "active" : ""}
-                onClick={() => setActiveCategory(category)}
+                href={`/templates?category=${category}`}
               >
                 {category}
-              </button>
+              </Link>
             ))}
           </div>
-          <label className="search-box">
-            <Search size={17} />
-            <input
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search templates"
-            />
-            <kbd>⌘ K</kbd>
-          </label>
+          <Link className="view-library-link" href="/templates">View the full library <ArrowRight size={15} /></Link>
         </div>
 
         <div className="template-grid" id="all">
           {templatesLoading && Array.from({ length: 8 }).map((_, index) => (
             <div className="template-skeleton" key={index}><div /><span /></div>
           ))}
-          {visibleTemplates.map((template) => (
-            <article className="template-card" key={template.id}>
-              <div className="thumbnail">
-                <Image
-                  className="template-image"
-                  src={template.url}
-                  alt={`${template.name} blank meme template`}
-                  fill
-                  sizes="(max-width: 640px) 50vw, (max-width: 900px) 45vw, 280px"
-                />
-                <button
-                  className={favorites.includes(template.id) ? "favorite active" : "favorite"}
-                  onClick={() => toggleFavorite(template.id)}
-                  aria-label={`Favorite ${template.name}`}
-                >
-                  <Heart size={17} fill={favorites.includes(template.id) ? "currentColor" : "none"} />
-                </button>
-                <Link className="use-template" href={`/editor/${template.id}`}>Use template <ArrowRight size={15} /></Link>
-              </div>
-              <div className="template-info">
-                <div>
-                  <h3>{template.name}</h3>
-                  <span>{template.category}</span>
-                </div>
-                <button aria-label={`More options for ${template.name}`}>•••</button>
-              </div>
-            </article>
+          {featuredTemplates.map((template) => (
+            <TemplateCard
+              template={template}
+              key={template.id}
+              isFavorite={favorites.includes(template.id)}
+              onToggleFavorite={toggleFavorite}
+            />
           ))}
-          {!templatesLoading && visibleTemplates.length === 0 && (
-            <div className="empty-state glass">
-              <Search size={24} />
-              <h3>No templates found</h3>
-              <p>Try a different search or category.</p>
-            </div>
-          )}
+        </div>
+
+        <div className="featured-library-cta">
+          <Link className="secondary-cta" href="/templates">Browse all 100 templates <ArrowRight size={17} /></Link>
         </div>
       </section>
 
