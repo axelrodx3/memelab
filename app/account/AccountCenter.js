@@ -2,10 +2,11 @@
 
 import {
   Bell, Check, ChevronRight, CircleUserRound, Download, Eye, EyeOff,
-  ImagePlus, KeyRound, Laptop, LogOut, Save, ShieldCheck, Trash2, UploadCloud, UserRound
+  Clock3, ImagePlus, KeyRound, Laptop, LogOut, RotateCcw, Save, ShieldCheck,
+  Trash2, UploadCloud, UserRound
 } from "lucide-react";
 import Image from "next/image";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createClient } from "../../lib/supabase/client";
 import styles from "./AccountCenter.module.css";
 
@@ -34,6 +35,18 @@ function usernameAvailableAt(value) {
   return date;
 }
 
+function formatCountdown(milliseconds) {
+  const minutes = Math.max(0, Math.ceil(milliseconds / 60000));
+  const days = Math.floor(minutes / 1440);
+  const hours = Math.floor((minutes % 1440) / 60);
+  const remainingMinutes = minutes % 60;
+  return [
+    days ? `${days}d` : "",
+    hours ? `${hours}h` : "",
+    `${remainingMinutes}m`
+  ].filter(Boolean).join(" ");
+}
+
 function FieldMessage({ value }) {
   return value ? <p className={styles.message} role="status">{value}</p> : null;
 }
@@ -55,10 +68,17 @@ export default function AccountCenter({ profile: initialProfile, settings: initi
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState("");
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [now, setNow] = useState(() => Date.now());
   const avatarInput = useRef(null);
   const bannerInput = useRef(null);
   const availableAt = useMemo(() => usernameAvailableAt(profile.username_changed_at), [profile.username_changed_at]);
-  const usernameLocked = availableAt && availableAt > new Date();
+  const usernameLocked = availableAt && availableAt.getTime() > now;
+
+  useEffect(() => {
+    if (!usernameLocked) return undefined;
+    const interval = window.setInterval(() => setNow(Date.now()), 60000);
+    return () => window.clearInterval(interval);
+  }, [usernameLocked]);
 
   const run = async (name, callback) => {
     setBusy(name);
@@ -206,9 +226,29 @@ export default function AccountCenter({ profile: initialProfile, settings: initi
   const deactivate = () => run("deactivate", async () => {
     const supabase = createClient();
     const nextStatus = profile.account_status === "active" ? "deactivated" : "active";
+    if (nextStatus === "deactivated") {
+      const { error: settingsError } = await supabase
+        .from("account_settings")
+        .update({ visibility_before_deactivation: profile.profile_visibility })
+        .eq("user_id", profile.id);
+      if (settingsError) throw settingsError;
+      setSettings((current) => ({ ...current, visibility_before_deactivation: profile.profile_visibility }));
+    }
+    const restoredVisibility = settings.visibility_before_deactivation || "public";
     const { error } = await supabase.from("profiles").update({ account_status: nextStatus }).eq("id", profile.id);
     if (error) throw error;
-    setProfile((current) => ({ ...current, account_status: nextStatus, profile_visibility: nextStatus === "deactivated" ? "private" : current.profile_visibility }));
+    if (nextStatus === "active") {
+      const { error: visibilityError } = await supabase
+        .from("profiles")
+        .update({ profile_visibility: restoredVisibility })
+        .eq("id", profile.id);
+      if (visibilityError) throw visibilityError;
+    }
+    setProfile((current) => ({
+      ...current,
+      account_status: nextStatus,
+      profile_visibility: nextStatus === "deactivated" ? "private" : restoredVisibility
+    }));
     setMessage(nextStatus === "active" ? "Your account is active again." : "Your account is deactivated and hidden. You can reactivate it here anytime.");
   });
 
@@ -250,6 +290,19 @@ export default function AccountCenter({ profile: initialProfile, settings: initi
           </div>
         </div>
       </header>
+
+      {profile.account_status === "deactivated" && (
+        <div className={`${styles.reactivationNotice} glass`}>
+          <div className={styles.reactivationIcon}><RotateCcw size={19} /></div>
+          <div>
+            <strong>Your account is paused</strong>
+            <p>Your profile and community activity are hidden. Reactivate to restore your previous privacy setting and continue where you left off.</p>
+          </div>
+          <button className={styles.primaryButton} onClick={deactivate} disabled={busy === "deactivate"}>
+            <RotateCcw size={14} /> {busy === "deactivate" ? "Restoring…" : "Reactivate MemeLab"}
+          </button>
+        </div>
+      )}
 
       {!settings.gender && (
         <div className={`${styles.setupNotice} glass`}>
@@ -302,7 +355,14 @@ export default function AccountCenter({ profile: initialProfile, settings: initi
                   <label>Display name<input name="displayName" defaultValue={profile.display_name || ""} maxLength={50} required /></label>
                   <label className={styles.wide}>Bio<textarea name="bio" defaultValue={profile.bio || ""} maxLength={240} rows={4} placeholder="Tell the community who you are." /></label>
                 </div>
-                {usernameLocked && <p className={styles.help}>Username changes unlock {availableAt.toLocaleDateString()}.</p>}
+                {usernameLocked ? (
+                  <div className={styles.cooldown}>
+                    <Clock3 size={16} />
+                    <div><strong>Username locked for {formatCountdown(availableAt.getTime() - now)}</strong><span>You can change it again on {availableAt.toLocaleDateString()}.</span></div>
+                  </div>
+                ) : (
+                  <p className={styles.help}>After changing your username, the next change unlocks in 30 days.</p>
+                )}
                 <button className={styles.primaryButton} disabled={busy === "profile"}><Save size={15} /> {busy === "profile" ? "Saving…" : "Save profile"}</button>
               </form>
             </>
@@ -314,7 +374,7 @@ export default function AccountCenter({ profile: initialProfile, settings: initi
               <div className={styles.toggleList}>
                 <Toggle checked={profile.mature_content_enabled} onChange={(value) => setProfile((current) => ({ ...current, mature_content_enabled: value }))} title="Reveal mature content automatically" description="Otherwise mature posts stay behind a click-to-view warning." />
                 <Toggle checked={profile.profile_visibility === "public"} onChange={(value) => setProfile((current) => ({ ...current, profile_visibility: value ? "public" : "private" }))} title="Public profile" description="Allow other members to open your profile and see your public posts." />
-                <Toggle checked={profile.show_activity} onChange={(value) => setProfile((current) => ({ ...current, show_activity: value }))} title="Show post history" description="Display your latest community posts on your public profile." />
+                <Toggle checked={profile.show_activity} onChange={(value) => setProfile((current) => ({ ...current, show_activity: value }))} title="Show profile activity" description="Display your public posts, comments and saved templates on your profile." />
               </div>
               <button className={styles.primaryButton} onClick={() => saveSettings("preferences")} disabled={busy === "preferences"}><Save size={15} /> Save preferences</button>
             </section>
@@ -322,7 +382,12 @@ export default function AccountCenter({ profile: initialProfile, settings: initi
 
           {tab === "notifications" && (
             <section className={`${styles.panel} glass`}>
-              <div className={styles.panelHeading}><div><span>NOTIFICATIONS</span><h2>Stay in the loop</h2><p>Choose which community moments reach your inbox.</p></div></div>
+              <div className={styles.panelHeading}><div><span>NOTIFICATIONS</span><h2>Stay in the loop</h2><p>Set the moments you want MemeLab to notify you about.</p></div></div>
+              <div className={styles.deliveryNotice}>
+                <Bell size={17} />
+                <div><strong>Preferences save now · delivery is coming next</strong><p>Your choices are stored to your account. Email delivery is not active yet, and MemeLab will honor these settings when notifications launch.</p></div>
+                <span>COMING SOON</span>
+              </div>
               <div className={styles.toggleList}>
                 <Toggle checked={settings.notification_email} onChange={(value) => setSettings((current) => ({ ...current, notification_email: value }))} title="Email notifications" description="Master switch for optional MemeLab emails." />
                 <Toggle checked={settings.notification_replies} onChange={(value) => setSettings((current) => ({ ...current, notification_replies: value }))} title="Replies and comments" description="Hear when someone joins your conversation." />

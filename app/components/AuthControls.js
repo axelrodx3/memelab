@@ -8,12 +8,23 @@ import { createClient } from "../../lib/supabase/client";
 
 export default function AuthControls({ compact = false }) {
   const [user, setUser] = useState(undefined);
+  const [profile, setProfile] = useState(null);
 
   useEffect(() => {
     const supabase = createClient();
-    supabase.auth.getUser().then(({ data }) => setUser(data.user || null));
+    const loadProfile = async (nextUser) => {
+      setUser(nextUser || null);
+      if (!nextUser) return setProfile(null);
+      const { data } = await supabase
+        .from("profiles")
+        .select("username,display_name,avatar_url")
+        .eq("id", nextUser.id)
+        .maybeSingle();
+      setProfile(data || null);
+    };
+    supabase.auth.getUser().then(({ data }) => loadProfile(data.user));
     const { data } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user || null);
+      loadProfile(session?.user);
     });
     return () => data.subscription.unsubscribe();
   }, []);
@@ -24,8 +35,8 @@ export default function AuthControls({ compact = false }) {
     return <Link className={compact ? "mobile-auth-link" : "login-button"} href="/auth">Log in</Link>;
   }
 
-  const initial = (user.user_metadata?.display_name || user.email || "M").charAt(0).toUpperCase();
-  const avatar = user.user_metadata?.avatar_url;
+  const initial = (profile?.display_name || profile?.username || user.email || "M").charAt(0).toUpperCase();
+  const avatar = profile?.avatar_url;
 
   const signOut = async () => {
     const supabase = createClient();

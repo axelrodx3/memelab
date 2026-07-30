@@ -38,6 +38,7 @@ alter table public.profiles add constraint profiles_account_status_check
 create table if not exists public.account_settings (
   user_id uuid primary key references public.profiles(id) on delete cascade,
   gender text,
+  visibility_before_deactivation text not null default 'public',
   notification_email boolean not null default true,
   notification_replies boolean not null default true,
   notification_votes boolean not null default true,
@@ -45,6 +46,21 @@ create table if not exists public.account_settings (
   updated_at timestamptz not null default now(),
   check (gender is null or gender in ('female', 'male'))
 );
+
+alter table public.account_settings
+  add column if not exists visibility_before_deactivation text not null default 'public';
+alter table public.account_settings drop constraint if exists account_settings_visibility_before_deactivation_check;
+alter table public.account_settings add constraint account_settings_visibility_before_deactivation_check
+  check (visibility_before_deactivation in ('public', 'private'));
+
+create table if not exists public.template_favorites (
+  user_id uuid not null references public.profiles(id) on delete cascade,
+  template_id text not null references public.template_assets(id) on delete cascade,
+  created_at timestamptz not null default now(),
+  primary key (user_id, template_id)
+);
+create index if not exists template_favorites_user_created_idx
+  on public.template_favorites (user_id, created_at desc);
 
 insert into public.account_settings (user_id)
 select id from public.profiles
@@ -62,6 +78,31 @@ create policy "Members update their account settings" on public.account_settings
 
 grant select, update on public.account_settings to authenticated;
 grant all on public.account_settings to service_role;
+
+alter table public.template_favorites enable row level security;
+drop policy if exists "Visible template favorites are public" on public.template_favorites;
+create policy "Visible template favorites are public" on public.template_favorites
+  for select using (
+    (select auth.uid()) = user_id
+    or exists (
+      select 1 from public.profiles
+      where id = user_id
+        and account_status = 'active'
+        and profile_visibility = 'public'
+        and show_activity
+    )
+  );
+drop policy if exists "Members save template favorites" on public.template_favorites;
+create policy "Members save template favorites" on public.template_favorites
+  for insert to authenticated
+  with check ((select auth.uid()) = user_id and public.is_active_member());
+drop policy if exists "Members remove template favorites" on public.template_favorites;
+create policy "Members remove template favorites" on public.template_favorites
+  for delete to authenticated
+  using ((select auth.uid()) = user_id);
+grant select on public.template_favorites to anon, authenticated;
+grant insert, delete on public.template_favorites to authenticated;
+grant all on public.template_favorites to service_role;
 
 create or replace function public.is_reserved_username(candidate_username text)
 returns boolean

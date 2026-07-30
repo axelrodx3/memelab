@@ -3,6 +3,7 @@
 import { ChevronLeft, ChevronRight, Search, SlidersHorizontal, X } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
+import { createClient } from "../../lib/supabase/client";
 import { TEMPLATE_CATEGORIES } from "../../lib/template-utils";
 import TemplateCard from "../components/TemplateCard";
 
@@ -28,7 +29,7 @@ function paginationItems(currentPage, totalPages) {
   return items;
 }
 
-export default function TemplateLibrary({ initialTemplates }) {
+export default function TemplateLibrary({ initialTemplates, viewerId = null }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -43,9 +44,31 @@ export default function TemplateLibrary({ initialTemplates }) {
 
   useEffect(() => {
     const stored = window.localStorage.getItem("memelab:favorites");
-    if (!stored) return;
-    try { setFavorites(JSON.parse(stored)); } catch {}
-  }, []);
+    let local = [];
+    try { local = stored ? JSON.parse(stored) : []; } catch {}
+    if (!viewerId) {
+      setFavorites(local);
+      return;
+    }
+
+    const supabase = createClient();
+    const hydrate = async () => {
+      if (local.length) {
+        await supabase.from("template_favorites").upsert(
+          local.map((template_id) => ({ user_id: viewerId, template_id })),
+          { onConflict: "user_id,template_id", ignoreDuplicates: true }
+        );
+      }
+      const { data } = await supabase
+        .from("template_favorites")
+        .select("template_id")
+        .eq("user_id", viewerId);
+      const synced = (data || []).map((item) => item.template_id);
+      setFavorites(synced);
+      window.localStorage.setItem("memelab:favorites", JSON.stringify(synced));
+    };
+    hydrate();
+  }, [viewerId]);
 
   const updateParams = (updates) => {
     const next = new URLSearchParams(searchParams.toString());
@@ -91,12 +114,20 @@ export default function TemplateLibrary({ initialTemplates }) {
     if (requestedPage !== currentPage) updateParams({ page: currentPage });
   }, [currentPage, requestedPage]);
 
-  const toggleFavorite = (id) => {
+  const toggleFavorite = async (id) => {
+    const wasFavorite = favorites.includes(id);
     setFavorites((current) => {
       const next = current.includes(id) ? current.filter((item) => item !== id) : [...current, id];
       window.localStorage.setItem("memelab:favorites", JSON.stringify(next));
       return next;
     });
+    if (!viewerId) return;
+    const supabase = createClient();
+    if (wasFavorite) {
+      await supabase.from("template_favorites").delete().eq("user_id", viewerId).eq("template_id", id);
+    } else {
+      await supabase.from("template_favorites").upsert({ user_id: viewerId, template_id: id });
+    }
   };
 
   const hasFilters = query || category !== "All" || sort !== "popular";

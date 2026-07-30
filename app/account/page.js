@@ -13,7 +13,7 @@ export default async function AccountPage() {
   const supabase = await createClient();
   const { data: settings } = await supabase
     .from("account_settings")
-    .select("gender,notification_email,notification_replies,notification_votes")
+    .select("gender,visibility_before_deactivation,notification_email,notification_replies,notification_votes")
     .eq("user_id", viewer.id)
     .maybeSingle();
 
@@ -25,6 +25,7 @@ export default async function AccountPage() {
         profile={viewer}
         settings={settings || {
           gender: null,
+          visibility_before_deactivation: "public",
           notification_email: true,
           notification_replies: true,
           notification_votes: true

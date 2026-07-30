@@ -1,6 +1,7 @@
 import { Sparkles } from "lucide-react";
 import { Suspense } from "react";
 import { getTemplates } from "../../lib/templates";
+import { getViewer } from "../../lib/supabase/server";
 import SiteHeader from "../components/SiteHeader";
 import TemplateLibrary from "./TemplateLibrary";
 
@@ -23,7 +24,7 @@ function CatalogSkeleton() {
 }
 
 export default async function TemplatesPage() {
-  const templates = await getTemplates();
+  const [templates, viewer] = await Promise.all([getTemplates(), getViewer()]);
 
   return (
     <main className="catalog-page">
@@ -42,7 +43,7 @@ export default async function TemplatesPage() {
       </header>
 
       <Suspense fallback={<CatalogSkeleton />}>
-        <TemplateLibrary initialTemplates={templates} />
+        <TemplateLibrary initialTemplates={templates} viewerId={viewer?.id || null} />
       </Suspense>
 
       <footer className="catalog-footer shell">

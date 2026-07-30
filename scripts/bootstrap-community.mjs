@@ -440,6 +440,25 @@ const CLASSICS = [
   "ancient aliens", "doge", "this is fine", "always has been"
 ];
 
+// Audited by visual comparison (exact hashes + perceptual hashes). Keep the
+// higher-ranked canonical template while retaining alternate names as aliases.
+const TEMPLATE_DUPLICATES = [
+  ["100777631", "142009471"],
+  ["188390779", "mg_woman-cat"],
+  ["145139900", "mg_reveal"],
+  ["29562797", "mg_captain"],
+  ["61579", "mg_mordor"],
+  ["28251713", "mg_oprah"],
+  ["93895088", "mg_gb"],
+  ["249257686", "mg_cbb"],
+  ["124055727", "mg_yallgot"],
+  ["101716", "mg_yodawg"],
+  ["89370399", "mg_rollsafe"],
+  ["181913649", "91998305"],
+  ["533936279", "mg_midwit"],
+  ["87743020", "mg_ds"]
+];
+
 function categorize(name, aliases = []) {
   const value = `${name} ${aliases.join(" ")}`.toLowerCase();
   if (/(doge|cat|dog|monkey|bear|bird|animal|seal|rabbit)/.test(value)) return "Animals";
@@ -527,7 +546,22 @@ async function fetchCatalog() {
     templates.push(template);
   }
 
-  return templates.map((template, index) => ({ ...template, rank: index + 1 }));
+  const catalogById = new Map(templates.map((template) => [template.id, template]));
+  const duplicateIds = new Set(TEMPLATE_DUPLICATES.map(([, duplicateId]) => duplicateId));
+  for (const [canonicalId, duplicateId] of TEMPLATE_DUPLICATES) {
+    const canonical = catalogById.get(canonicalId);
+    const duplicate = catalogById.get(duplicateId);
+    if (!canonical || !duplicate) continue;
+    canonical.aliases = [...new Set([
+      ...canonical.aliases,
+      duplicate.name,
+      ...duplicate.aliases
+    ])];
+  }
+
+  return templates
+    .filter((template) => !duplicateIds.has(template.id))
+    .map((template, index) => ({ ...template, rank: index + 1 }));
 }
 
 async function mapWithConcurrency(items, limit, task) {
@@ -603,6 +637,86 @@ async function syncTemplates() {
   console.log(`MemeLab template import complete: ${imported} stored, ${failed} skipped.`);
 }
 
+async function deduplicateTemplates() {
+  const duplicateIds = TEMPLATE_DUPLICATES.map(([, duplicateId]) => duplicateId);
+  const rows = await sql`
+    select id, name, aliases, storage_path
+    from public.template_assets
+    where id = any(${duplicateIds})
+  `;
+  if (!rows.length) {
+    console.log("MemeLab template audit: no known visual duplicates found.");
+    return;
+  }
+
+  const rowById = new Map(rows.map((row) => [row.id, row]));
+  const activePairs = TEMPLATE_DUPLICATES.filter(([, duplicateId]) => rowById.has(duplicateId));
+  const storagePaths = activePairs.map(([, duplicateId]) => rowById.get(duplicateId).storage_path);
+  const [{ hasFavoritesTable }] = await sql`
+    select to_regclass('public.template_favorites') is not null as "hasFavoritesTable"
+  `;
+
+  if (storagePaths.length) {
+    const { error } = await supabase.storage.from("templates").remove(storagePaths);
+    if (error) throw new Error(`Duplicate template files could not be removed: ${error.message}`);
+  }
+
+  await sql.begin(async (transaction) => {
+    for (const [canonicalId, duplicateId] of activePairs) {
+      const duplicate = rowById.get(duplicateId);
+      const [canonical] = await transaction`
+        select name, aliases from public.template_assets where id = ${canonicalId}
+      `;
+      if (!canonical) continue;
+
+      if (hasFavoritesTable) {
+        await transaction`
+          insert into public.template_favorites (user_id, template_id, created_at)
+          select user_id, ${canonicalId}, created_at
+          from public.template_favorites
+          where template_id = ${duplicateId}
+          on conflict (user_id, template_id) do nothing
+        `;
+      }
+      await transaction`
+        delete from public.posts
+        where author_id is null
+          and source_template_id = ${duplicateId}
+          and exists (
+            select 1 from public.posts
+            where author_id is null and source_template_id = ${canonicalId}
+          )
+      `;
+      await transaction`
+        update public.posts set source_template_id = ${canonicalId}
+        where source_template_id = ${duplicateId}
+      `;
+      await transaction`
+        update public.template_assets
+        set aliases = ${[...new Set([
+          ...(canonical.aliases || []),
+          duplicate.name,
+          ...(duplicate.aliases || [])
+        ])]}
+        where id = ${canonicalId}
+      `;
+      await transaction`delete from public.template_assets where id = ${duplicateId}`;
+    }
+    await transaction`
+      with ranked as (
+        select id, row_number() over (order by rank, name, id)::integer as next_rank
+        from public.template_assets
+      )
+      update public.template_assets as templates
+      set rank = ranked.next_rank
+      from ranked
+      where templates.id = ranked.id
+    `;
+  });
+
+  console.log(`MemeLab template audit: removed ${activePairs.length} visual duplicates.`);
+}
+
 async function seedCommunity() {
   const templates = await sql`
     select id, name, image_url from public.template_assets
@@ -628,6 +742,7 @@ try {
   console.log("Preparing MemeLab community database and storage…");
   await sql.unsafe(schema);
   await syncTemplates();
+  await deduplicateTemplates();
   await seedCommunity();
   console.log("MemeLab community bootstrap complete.");
 } finally {
