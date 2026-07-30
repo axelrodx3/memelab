@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, AtSign, LockKeyhole, UserRound } from "lucide-react";
+import { ArrowRight, AtSign, LockKeyhole, RefreshCw, UserRound } from "lucide-react";
 import { useState } from "react";
 import { createClient } from "../../lib/supabase/client";
 
@@ -8,6 +8,24 @@ export default function AuthForm({ nextPath }) {
   const [mode, setMode] = useState("signin");
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
+  const [pendingEmail, setPendingEmail] = useState("");
+  const [resendBusy, setResendBusy] = useState(false);
+
+  const resendConfirmation = async () => {
+    if (!pendingEmail) return;
+    setResendBusy(true);
+    setMessage("");
+    const supabase = createClient();
+    const { error } = await supabase.auth.resend({
+      type: "signup",
+      email: pendingEmail,
+      options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextPath)}`
+      }
+    });
+    setResendBusy(false);
+    setMessage(error ? error.message : "A fresh MemeLab confirmation email is on its way.");
+  };
 
   const submit = async (event) => {
     event.preventDefault();
@@ -31,14 +49,20 @@ export default function AuthForm({ nextPath }) {
       });
       setBusy(false);
       if (error) return setMessage(error.message);
-      if (!data.session) return setMessage("Check your inbox for the MemeLab confirmation email. The link will verify your account and bring you back here.");
+      if (!data.session) {
+        setPendingEmail(email);
+        return setMessage("Check your inbox for the MemeLab confirmation email. The link will verify your account and bring you back here.");
+      }
       window.location.assign(nextPath);
       return;
     }
 
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     setBusy(false);
-    if (error) return setMessage(error.message);
+    if (error) {
+      if (error.message.toLowerCase().includes("email not confirmed")) setPendingEmail(email);
+      return setMessage(error.message);
+    }
     window.location.assign(nextPath);
   };
 
@@ -66,6 +90,11 @@ export default function AuthForm({ nextPath }) {
         </label>
 
         {message && <p className="auth-message" role="status">{message}</p>}
+        {pendingEmail && (
+          <button className="resend-confirmation" type="button" onClick={resendConfirmation} disabled={resendBusy}>
+            <RefreshCw size={14} /> {resendBusy ? "Sending…" : "Resend confirmation email"}
+          </button>
+        )}
         <button className="primary-cta auth-submit" disabled={busy}>
           {busy ? "Working…" : mode === "signup" ? "Create my account" : "Enter MemeLab"}
           {!busy && <ArrowRight size={17} />}

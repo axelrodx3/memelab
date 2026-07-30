@@ -336,6 +336,8 @@ textarea { font: inherit; }
 .auth-submit { width: 100%; border: 0; margin-top: 4px; }
 .auth-submit:disabled, .publish-post:disabled, .account-card > button:disabled { opacity: .55; cursor: wait; }
 .auth-message, .account-message, .create-post-message { margin: 0; color: #d9cfff; font-size: 11px; line-height: 1.5; }
+.resend-confirmation { min-height: 38px; padding: 0 12px; border: 1px solid rgba(167,139,250,.25); border-radius: 10px; background: rgba(139,109,248,.08); color: #c8baff; display: flex; align-items: center; justify-content: center; gap: 7px; font-size: 10px; font-weight: 750; cursor: pointer; }
+.resend-confirmation:disabled { opacity: .55; cursor: wait; }
 .auth-fine-print { margin: 21px 0 0; text-align: center; color: #5f616b; font-size: 9px; line-height: 1.5; }
 
 .confirmation-shell { min-height: calc(100vh - 82px); padding: 80px 0 110px; display: grid; place-items: center; position: relative; z-index: 2; }
