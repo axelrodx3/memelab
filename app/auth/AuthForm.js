@@ -13,6 +13,8 @@ export default function AuthForm({ nextPath }) {
   const [pendingEmail, setPendingEmail] = useState("");
   const [resendBusy, setResendBusy] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
+  const [username, setUsername] = useState("");
+  const [usernameStatus, setUsernameStatus] = useState("idle");
 
   useEffect(() => {
     if (!resendCooldown) return undefined;
@@ -21,6 +23,41 @@ export default function AuthForm({ nextPath }) {
     }, 1000);
     return () => window.clearInterval(timer);
   }, [resendCooldown]);
+
+  useEffect(() => {
+    if (mode !== "signup") return undefined;
+    const candidate = username.trim();
+    if (!candidate) {
+      setUsernameStatus("idle");
+      return undefined;
+    }
+    if (!/^[A-Za-z0-9_]{3,20}$/.test(candidate)) {
+      setUsernameStatus("invalid");
+      return undefined;
+    }
+
+    setUsernameStatus("checking");
+    const timer = window.setTimeout(async () => {
+      const supabase = createClient();
+      const { data, error } = await supabase.rpc("is_username_available", {
+        candidate_username: candidate
+      });
+      if (error) {
+        setUsernameStatus("error");
+        return;
+      }
+      setUsernameStatus(data ? "available" : "taken");
+    }, 350);
+    return () => window.clearTimeout(timer);
+  }, [mode, username]);
+
+  const checkUsername = async (candidate) => {
+    const supabase = createClient();
+    const { data, error } = await supabase.rpc("is_username_available", {
+      candidate_username: candidate
+    });
+    return { available: data === true, error };
+  };
 
   const resendConfirmation = async () => {
     if (!pendingEmail || resendBusy || resendCooldown) return;
@@ -69,21 +106,41 @@ export default function AuthForm({ nextPath }) {
     const form = new FormData(event.currentTarget);
     const email = String(form.get("email") || "").trim();
     const password = String(form.get("password") || "");
-    const username = String(form.get("username") || "").trim();
+    const requestedUsername = String(form.get("username") || "").trim();
     const supabase = createClient();
 
     if (mode === "signup") {
+      const availability = await checkUsername(requestedUsername);
+      if (availability.error) {
+        setBusy(false);
+        setMessage("We couldn’t check that username right now. Please try again.");
+        return;
+      }
+      if (!availability.available) {
+        setBusy(false);
+        setPendingEmail(email);
+        setUsernameStatus("taken");
+        setMessage("That username is already taken. Try another one. If it belongs to your unverified account, resend its confirmation email below.");
+        return;
+      }
+
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
           emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextPath)}`,
-          data: { username, display_name: username }
+          data: { username: requestedUsername, display_name: requestedUsername }
         }
       });
       if (error) {
         setBusy(false);
         setPendingEmail(email);
+        const latestAvailability = await checkUsername(requestedUsername);
+        if (!latestAvailability.error && !latestAvailability.available) {
+          setUsernameStatus("taken");
+          setMessage("That username was just claimed. Try a different one.");
+          return;
+        }
         showAuthError(error);
         return;
       }
@@ -120,7 +177,14 @@ export default function AuthForm({ nextPath }) {
         {mode === "signup" && (
           <label>
             Username
-            <span><UserRound size={16} /><input name="username" minLength={3} maxLength={20} pattern="[A-Za-z0-9_]+" required placeholder="your_handle" /></span>
+            <span><UserRound size={16} /><input name="username" minLength={3} maxLength={20} pattern="[A-Za-z0-9_]+" required autoComplete="username" placeholder="your_handle" value={username} onChange={(event) => setUsername(event.target.value)} aria-describedby="username-status" /></span>
+            <small id="username-status" className={`username-status ${usernameStatus}`}>
+              {usernameStatus === "checking" && "Checking availability…"}
+              {usernameStatus === "available" && "Username available"}
+              {usernameStatus === "taken" && "Username taken — try a different one"}
+              {usernameStatus === "invalid" && "Use 3–20 letters, numbers, or underscores"}
+              {usernameStatus === "error" && "Couldn’t check availability yet"}
+            </small>
           </label>
         )}
         <label>
