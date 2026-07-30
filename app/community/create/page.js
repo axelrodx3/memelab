@@ -12,6 +12,7 @@ export const dynamic = "force-dynamic";
 export default async function CreatePostPage() {
   const viewer = await getViewer();
   if (!viewer) redirect("/auth?next=/community/create");
+  if (viewer.account_status === "deactivated") redirect("/account");
 
   return (
     <main className="create-post-page">

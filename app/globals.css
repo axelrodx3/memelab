@@ -295,6 +295,7 @@ textarea { font: inherit; }
 .auth-control-loading { width: 72px; height: 30px; border-radius: 9px; background: rgba(255,255,255,.045); }
 .account-chip { height: 36px; padding: 0 10px 0 5px; display: flex; align-items: center; gap: 7px; border: 1px solid var(--border); border-radius: 10px; color: #d7d7dd; font-size: 11px; }
 .account-chip > span { width: 25px; height: 25px; display: grid; place-items: center; border-radius: 7px; background: linear-gradient(135deg, #b7a4ff, #7957ef); color: #100e17; font-size: 11px; font-weight: 900; }
+.account-chip > span img { width: 25px; height: 25px; object-fit: cover; border-radius: 7px; }
 .signout-button { width: 34px; height: 34px; display: grid; place-items: center; border: 0; background: transparent; color: #737580; cursor: pointer; }
 .signout-button:hover { color: #d5caff; }
 .mobile-auth-link { color: #c3b3ff; font-weight: 700; }
@@ -349,6 +350,9 @@ textarea { font: inherit; }
 .confirmation-card h1 { margin: 14px 0 13px; font: 700 clamp(39px, 5vw, 56px)/1.03 var(--font-manrope), sans-serif; letter-spacing: -.055em; }
 .confirmation-card > p { max-width: 470px; margin: 0 auto; color: var(--muted); font-size: 14px; line-height: 1.7; }
 .confirmation-actions { margin-top: 30px; display: flex; justify-content: center; gap: 10px; }
+.password-reset-fields { width: min(390px, 100%); margin: 25px auto 12px; display: grid; gap: 10px; }
+.password-reset-fields input { height: 46px; padding: 0 13px; border: 1px solid var(--border); border-radius: 11px; outline: 0; background: rgba(3,4,7,.35); color: #eeeeF2; }
+.password-reset-fields input:focus { border-color: rgba(167,139,250,.5); box-shadow: 0 0 0 3px rgba(124,92,255,.07); }
 
 .account-shell, .moderation-shell { position: relative; z-index: 2; padding: 82px 0 120px; }
 .account-heading { margin-bottom: 31px; }
@@ -472,8 +476,13 @@ textarea { font: inherit; }
 .publish-post { width: 100%; margin-top: auto; border: 0; }
 
 .profile-shell { padding: 76px 0 120px; position: relative; z-index: 2; }
-.profile-hero { min-height: 230px; padding: 35px; border-radius: 23px; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 25px; }
-.profile-avatar { width: 105px; height: 105px; border-radius: 28px; display: grid; place-items: center; background: linear-gradient(145deg, #a991ff, #5d3ecb); color: #14111d; font: 900 40px/1 var(--font-manrope), sans-serif; }
+.profile-hero { min-height: 230px; padding: 35px; border-radius: 23px; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 25px; position: relative; overflow: hidden; }
+.profile-hero > *:not(.profile-banner) { position: relative; z-index: 1; }
+.profile-banner { position: absolute; inset: 0; opacity: .28; }
+.profile-banner::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(8,9,12,.92), rgba(8,9,12,.68)); }
+.profile-banner img { object-fit: cover; }
+.profile-avatar { width: 105px; height: 105px; border-radius: 28px; display: grid; place-items: center; overflow: hidden; position: relative; background: linear-gradient(145deg, #a991ff, #5d3ecb); color: #14111d; font: 900 40px/1 var(--font-manrope), sans-serif; }
+.profile-avatar img { object-fit: cover; }
 .profile-hero h1 { margin: 10px 0 5px; font: 700 38px/1 var(--font-manrope), sans-serif; letter-spacing: -.045em; }
 .profile-hero > div:nth-child(2) > p { margin: 0; color: #7e808a; font-size: 11px; }
 .profile-bio { max-width: 520px; margin-top: 13px; color: #acadb5; font-size: 12px; line-height: 1.55; }
@@ -489,6 +498,9 @@ textarea { font: inherit; }
 .profile-post-card h3 { margin: 13px 13px 7px; font-size: 12px; }
 .profile-post-card > span { margin: 0 13px; display: flex; align-items: center; gap: 7px; color: #696b75; font-size: 9px; }
 .profile-empty { grid-column: 1 / -1; min-height: 180px; border-radius: 16px; display: grid; place-items: center; color: #6e707a; }
+.profile-private { min-height: 220px; margin-top: 55px; border-radius: 18px; display: grid; place-content: center; justify-items: center; gap: 9px; color: #8f7be1; }
+.profile-private strong { color: #dedde5; font-size: 13px; }
+.profile-private span { color: #6e707a; font-size: 10px; }
 
 .moderation-shell > header { margin-bottom: 32px; }
 .moderation-shell > header p { max-width: 650px; line-height: 1.6; }

@@ -1,6 +1,7 @@
 "use client";
 
-import { LogOut, UserRound } from "lucide-react";
+import { LogOut } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { createClient } from "../../lib/supabase/client";
@@ -24,6 +25,7 @@ export default function AuthControls({ compact = false }) {
   }
 
   const initial = (user.user_metadata?.display_name || user.email || "M").charAt(0).toUpperCase();
+  const avatar = user.user_metadata?.avatar_url;
 
   const signOut = async () => {
     const supabase = createClient();
@@ -34,7 +36,7 @@ export default function AuthControls({ compact = false }) {
   return (
     <div className={compact ? "mobile-auth-controls" : "auth-controls"}>
       <Link className="account-chip" href="/account" aria-label="Open account">
-        <span>{initial}</span>
+        <span>{avatar ? <Image src={avatar} alt="" width={25} height={25} /> : initial}</span>
         {!compact && <strong>Account</strong>}
       </Link>
       <button type="button" className="signout-button" onClick={signOut} aria-label="Log out">

@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "node scripts/bootstrap-community.mjs && node scripts/username-identity.mjs && next build",
+    "build": "node scripts/bootstrap-community.mjs && node scripts/username-identity.mjs && node scripts/account-center.mjs && next build",
     "start": "next start",
     "lint": "next lint"
   },

@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, AtSign, LockKeyhole, RefreshCw, UserRound } from "lucide-react";
+import { ArrowRight, AtSign, KeyRound, LockKeyhole, RefreshCw, UserRound } from "lucide-react";
 import { useEffect, useState } from "react";
 import { createClient } from "../../lib/supabase/client";
 
@@ -15,6 +15,7 @@ export default function AuthForm({ nextPath }) {
   const [resendCooldown, setResendCooldown] = useState(0);
   const [username, setUsername] = useState("");
   const [usernameStatus, setUsernameStatus] = useState("idle");
+  const [gender, setGender] = useState("");
 
   useEffect(() => {
     if (!resendCooldown) return undefined;
@@ -98,6 +99,23 @@ export default function AuthForm({ nextPath }) {
     setMessage(error.message);
   };
 
+  const sendPasswordReset = async (event) => {
+    const form = new FormData(event.currentTarget.form);
+    const email = String(form.get("email") || "").trim();
+    if (!email) {
+      setMessage("Enter your email first, then choose Forgot password.");
+      return;
+    }
+    setBusy(true);
+    setMessage("");
+    const supabase = createClient();
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/auth/callback?next=/auth/update-password`
+    });
+    setBusy(false);
+    setMessage(error ? error.message : "If that email has a MemeLab account, a secure reset link is on its way.");
+  };
+
   const submit = async (event) => {
     event.preventDefault();
     setBusy(true);
@@ -107,9 +125,15 @@ export default function AuthForm({ nextPath }) {
     const email = String(form.get("email") || "").trim();
     const password = String(form.get("password") || "");
     const requestedUsername = String(form.get("username") || "").trim();
+    const requestedGender = String(form.get("gender") || "");
     const supabase = createClient();
 
     if (mode === "signup") {
+      if (!["female", "male"].includes(requestedGender)) {
+        setBusy(false);
+        setMessage("Choose Female or Male to select your default profile image.");
+        return;
+      }
       const availability = await checkUsername(requestedUsername);
       if (availability.error) {
         setBusy(false);
@@ -129,7 +153,11 @@ export default function AuthForm({ nextPath }) {
         password,
         options: {
           emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextPath)}`,
-          data: { username: requestedUsername, display_name: requestedUsername }
+          data: {
+            username: requestedUsername,
+            display_name: requestedUsername,
+            gender: requestedGender
+          }
         }
       });
       if (error) {
@@ -175,17 +203,34 @@ export default function AuthForm({ nextPath }) {
 
       <form onSubmit={submit}>
         {mode === "signup" && (
-          <label>
-            Username
-            <span><UserRound size={16} /><input name="username" minLength={3} maxLength={20} pattern="[A-Za-z0-9_]+" required autoComplete="username" placeholder="your_handle" value={username} onChange={(event) => setUsername(event.target.value)} aria-describedby="username-status" /></span>
-            <small id="username-status" className={`username-status ${usernameStatus}`}>
-              {usernameStatus === "checking" && "Checking availability…"}
-              {usernameStatus === "available" && "Username available"}
-              {usernameStatus === "taken" && "Username taken — try a different one"}
-              {usernameStatus === "invalid" && "Use 3–20 letters, numbers, or underscores"}
-              {usernameStatus === "error" && "Couldn’t check availability yet"}
-            </small>
-          </label>
+          <>
+            <label>
+              Username
+              <span><UserRound size={16} /><input name="username" minLength={3} maxLength={20} pattern="[A-Za-z0-9_]+" required autoComplete="username" placeholder="your_handle" value={username} onChange={(event) => setUsername(event.target.value)} aria-describedby="username-status" /></span>
+              <small id="username-status" className={`username-status ${usernameStatus}`}>
+                {usernameStatus === "checking" && "Checking availability…"}
+                {usernameStatus === "available" && "Username available"}
+                {usernameStatus === "taken" && "Username taken — try a different one"}
+                {usernameStatus === "invalid" && "Use 3–20 letters, numbers, or underscores"}
+                {usernameStatus === "error" && "Couldn’t check availability yet"}
+              </small>
+            </label>
+            <fieldset className="gender-picker">
+              <legend>Choose your default profile</legend>
+              <div>
+                <label className={gender === "female" ? "selected" : ""}>
+                  <input type="radio" name="gender" value="female" required onChange={() => setGender("female")} />
+                  <img src="/avatars/default-female.png" alt="" />
+                  <span>Female</span>
+                </label>
+                <label className={gender === "male" ? "selected" : ""}>
+                  <input type="radio" name="gender" value="male" required onChange={() => setGender("male")} />
+                  <img src="/avatars/default-male.png" alt="" />
+                  <span>Male</span>
+                </label>
+              </div>
+            </fieldset>
+          </>
         )}
         <label>
           Email
@@ -195,6 +240,11 @@ export default function AuthForm({ nextPath }) {
           Password
           <span><LockKeyhole size={16} /><input name="password" type="password" minLength={8} autoComplete={mode === "signup" ? "new-password" : "current-password"} required placeholder="8+ characters" /></span>
         </label>
+        {mode === "signin" && (
+          <button type="button" className="forgot-password" onClick={sendPasswordReset} disabled={busy}>
+            <KeyRound size={13} /> Forgot password?
+          </button>
+        )}
 
         {message && <p className="auth-message" role="status">{message}</p>}
         {pendingEmail && (
@@ -215,6 +265,15 @@ export default function AuthForm({ nextPath }) {
         .username-status.taken,
         .username-status.invalid,
         .username-status.error { color: #f29b9b; }
+        .gender-picker { min-width: 0; margin: 0; padding: 0; border: 0; }
+        .gender-picker legend { margin-bottom: 8px; color: #888a94; font-size: 10px; font-weight: 700; }
+        .gender-picker > div { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .gender-picker label { height: 74px; padding: 8px 10px; display: flex; align-items: center; gap: 10px; border: 1px solid rgba(255,255,255,.08); border-radius: 12px; background: rgba(3,4,7,.35); cursor: pointer; transition: border-color .2s, background .2s; }
+        .gender-picker label.selected { border-color: rgba(167,139,250,.52); background: rgba(139,109,248,.1); }
+        .gender-picker input { position: absolute; opacity: 0; pointer-events: none; }
+        .gender-picker img { width: 52px; height: 52px; border-radius: 10px; object-fit: cover; }
+        .gender-picker label span { color: #d7d6de; font-size: 11px; }
+        .forgot-password { margin: -7px 0 0 auto; padding: 0; border: 0; background: transparent; color: #9583d6; display: flex; align-items: center; gap: 5px; font-size: 10px; cursor: pointer; }
       `}</style>
     </div>
   );

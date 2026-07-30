@@ -1,27 +1,35 @@
 import { redirect } from "next/navigation";
 import SiteHeader from "../components/SiteHeader";
-import { getViewer } from "../../lib/supabase/server";
-import AccountForm from "./AccountForm";
+import { createClient, getViewer } from "../../lib/supabase/server";
+import AccountCenter from "./AccountCenter";
 
-export const metadata = { title: "Your account — MemeLab" };
+export const metadata = { title: "Account Center — MemeLab" };
 export const dynamic = "force-dynamic";
 
 export default async function AccountPage() {
   const viewer = await getViewer();
   if (!viewer) redirect("/auth?next=/account");
 
+  const supabase = await createClient();
+  const { data: settings } = await supabase
+    .from("account_settings")
+    .select("gender,notification_email,notification_replies,notification_votes")
+    .eq("user_id", viewer.id)
+    .maybeSingle();
+
   return (
     <main className="account-page">
       <div className="ambient ambient-one" />
       <SiteHeader />
-      <section className="account-shell shell">
-        <div className="account-heading">
-          <span className="section-label">YOUR MEMELAB IDENTITY</span>
-          <h1>{viewer.display_name || viewer.username}</h1>
-          <p>@{viewer.username} · {viewer.karma} karma</p>
-        </div>
-        <AccountForm profile={viewer} />
-      </section>
+      <AccountCenter
+        profile={viewer}
+        settings={settings || {
+          gender: null,
+          notification_email: true,
+          notification_replies: true,
+          notification_votes: true
+        }}
+      />
     </main>
   );
 }
