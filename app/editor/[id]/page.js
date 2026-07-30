@@ -57,15 +57,19 @@ function drawCaption(context, text, y, maxWidth, size, color, alignBottom = fals
 }
 
 function normalizeEditorState(value = {}) {
+  const boundedNumber = (candidate, fallback, minimum, maximum) => {
+    const number = Number(candidate);
+    return Number.isFinite(number) ? Math.min(maximum, Math.max(minimum, number)) : fallback;
+  };
   return {
     ...DEFAULT_STATE,
     topText: typeof value.topText === "string" ? value.topText.slice(0, 500) : DEFAULT_STATE.topText,
     bottomText: typeof value.bottomText === "string" ? value.bottomText.slice(0, 500) : DEFAULT_STATE.bottomText,
-    fontSize: Math.min(84, Math.max(24, Number(value.fontSize) || DEFAULT_STATE.fontSize)),
+    fontSize: boundedNumber(value.fontSize, DEFAULT_STATE.fontSize, 24, 84),
     textColor: /^#[0-9a-f]{6}$/i.test(value.textColor || "") ? value.textColor : DEFAULT_STATE.textColor,
-    overlayX: Math.min(100, Math.max(0, Number(value.overlayX) || DEFAULT_STATE.overlayX)),
-    overlayY: Math.min(100, Math.max(0, Number(value.overlayY) || DEFAULT_STATE.overlayY)),
-    overlaySize: Math.min(90, Math.max(8, Number(value.overlaySize) || DEFAULT_STATE.overlaySize)),
+    overlayX: boundedNumber(value.overlayX, DEFAULT_STATE.overlayX, 0, 100),
+    overlayY: boundedNumber(value.overlayY, DEFAULT_STATE.overlayY, 0, 100),
+    overlaySize: boundedNumber(value.overlaySize, DEFAULT_STATE.overlaySize, 8, 90),
     overlayPath: typeof value.overlayPath === "string" ? value.overlayPath : null
   };
 }
@@ -79,7 +83,9 @@ export default function MemeEditor() {
   const canvasRef = useRef(null);
   const fileInputRef = useRef(null);
   const editedRef = useRef(false);
+  const editVersionRef = useRef(0);
   const savingRef = useRef(false);
+  const pendingSaveRef = useRef(false);
   const [template, setTemplate] = useState(null);
   const [viewer, setViewer] = useState(null);
   const [projectId, setProjectId] = useState(null);
@@ -98,6 +104,7 @@ export default function MemeEditor() {
   const [overlaySize, setOverlaySize] = useState(DEFAULT_STATE.overlaySize);
   const [rendered, setRendered] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [saveCycle, setSaveCycle] = useState(0);
 
   const hydrateState = useCallback((state) => {
     const normalized = normalizeEditorState(state);
@@ -192,13 +199,19 @@ export default function MemeEditor() {
 
   const markEdited = () => {
     editedRef.current = true;
+    editVersionRef.current += 1;
     setSaveError("");
     setSaveStatus(viewer ? "Unsaved changes" : "Saving on this device…");
   };
 
   const saveProject = useCallback(async () => {
-    if (!ready || !editedRef.current || savingRef.current) return;
+    if (!ready || !editedRef.current) return;
+    if (savingRef.current) {
+      pendingSaveRef.current = true;
+      return;
+    }
     savingRef.current = true;
+    const saveVersion = editVersionRef.current;
     const state = editorState();
 
     try {
@@ -209,8 +222,10 @@ export default function MemeEditor() {
       }));
 
       if (!viewer) {
-        editedRef.current = false;
-        setSaveStatus("Saved on this device");
+        const isCurrent = saveVersion === editVersionRef.current;
+        editedRef.current = !isCurrent;
+        pendingSaveRef.current ||= !isCurrent;
+        setSaveStatus(isCurrent ? "Saved on this device" : "Unsaved changes");
         return;
       }
 
@@ -240,13 +255,19 @@ export default function MemeEditor() {
         url.searchParams.set("project", data.id);
         window.history.replaceState(null, "", url);
       }
-      editedRef.current = false;
-      setSaveStatus("Saved to your account");
+      const isCurrent = saveVersion === editVersionRef.current;
+      editedRef.current = !isCurrent;
+      pendingSaveRef.current ||= !isCurrent;
+      setSaveStatus(isCurrent ? "Saved to your account" : "Unsaved changes");
     } catch (error) {
       setSaveStatus("Save failed");
       setSaveError(error.message || "Your project could not be saved.");
     } finally {
       savingRef.current = false;
+      if (pendingSaveRef.current) {
+        pendingSaveRef.current = false;
+        setSaveCycle((cycle) => cycle + 1);
+      }
     }
   }, [editorState, id, overlay, projectId, projectName, ready, viewer]);
 
@@ -256,7 +277,7 @@ export default function MemeEditor() {
     return () => window.clearTimeout(timeout);
   }, [
     bottomText, fontSize, overlay, overlayPath, overlaySize, overlayX, overlayY,
-    projectName, ready, saveProject, textColor, topText
+    projectName, ready, saveCycle, saveProject, textColor, topText
   ]);
 
   const renderCanvas = useCallback(async () => {
