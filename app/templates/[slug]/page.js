@@ -2,7 +2,7 @@ import { ArrowLeft, ArrowRight, Download, Maximize2, Sparkles, WandSparkles } fr
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { templateHref, templateIdFromSlug } from "../../../lib/template-utils";
+import { getRelatedTemplates, templateHref, templateIdFromSlug } from "../../../lib/template-utils";
 import { getTemplates } from "../../../lib/templates";
 import SiteHeader from "../../components/SiteHeader";
 import TemplateCard from "../../components/TemplateCard";
@@ -30,9 +30,7 @@ export default async function TemplateDetailPage({ params }) {
   const { template, templates } = await resolveTemplate(slug);
   if (!template) notFound();
 
-  const sameCategory = templates.filter((item) => item.id !== template.id && item.category === template.category);
-  const otherTemplates = templates.filter((item) => item.id !== template.id && item.category !== template.category);
-  const related = [...sameCategory, ...otherTemplates].slice(0, 4);
+  const related = getRelatedTemplates(template, templates, 4);
   const downloadName = `${template.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-blank.jpg`;
 
   return (
@@ -44,7 +42,7 @@ export default async function TemplateDetailPage({ params }) {
         <nav className="breadcrumbs" aria-label="Breadcrumb">
           <Link href="/templates"><ArrowLeft size={14} /> Templates</Link>
           <span>/</span>
-          <Link href={`/templates?category=${template.category}`}>{template.category}</Link>
+          <Link href={`/templates?category=${encodeURIComponent(template.category)}`}>{template.category}</Link>
           <span>/</span>
           <strong>{template.name}</strong>
         </nav>
@@ -69,7 +67,15 @@ export default async function TemplateDetailPage({ params }) {
             </div>
 
             <h1>{template.name}</h1>
-            <p>Start with the blank format, add your captions, upload a character or logo, and export without a watermark.</p>
+            <p>{template.description || "Start with the blank format, add your captions, upload a character or logo, and export without a watermark."}</p>
+
+            {template.tags?.length > 0 && (
+              <div className="detail-tags" aria-label="Template tags">
+                {template.tags.slice(0, 6).map((tag) => (
+                  <Link href={`/templates?q=${encodeURIComponent(tag)}`} key={tag}>#{tag}</Link>
+                ))}
+              </div>
+            )}
 
             <div className="detail-meta">
               <div>
@@ -89,7 +95,7 @@ export default async function TemplateDetailPage({ params }) {
             </div>
 
             <div className="detail-note">
-              <span className="status-dot" /> Free to edit · No account · No watermark
+              <span className="status-dot" /> Free to edit · Projects sync with an account · No watermark
             </div>
           </div>
         </section>

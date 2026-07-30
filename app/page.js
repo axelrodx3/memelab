@@ -13,7 +13,7 @@ import { useEffect, useState } from "react";
 import SiteHeader, { BrandMark } from "./components/SiteHeader";
 import TemplateCard from "./components/TemplateCard";
 
-const categories = ["Trending", "Classic", "Reaction", "Animals", "Movies"];
+const categories = ["Trending", "Classic", "Reaction", "Animals", "Movies & TV"];
 
 export default function Home() {
   const [favorites, setFavorites] = useState([]);
@@ -104,7 +104,7 @@ export default function Home() {
             {categories.map((category) => (
               <Link
                 key={category}
-                href={`/templates?category=${category}`}
+                href={`/templates?category=${encodeURIComponent(category)}`}
               >
                 {category}
               </Link>

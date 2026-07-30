@@ -1,5 +1,5 @@
 import {
-  CalendarDays, EyeOff, FolderKanban, Heart, ImageIcon, MessageCircle, TrendingUp
+  CalendarDays, EyeOff, Heart, ImageIcon, MessageCircle, TrendingUp
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -19,8 +19,7 @@ export async function generateMetadata({ params }) {
 const PROFILE_TABS = [
   ["posts", "Posts"],
   ["comments", "Comments"],
-  ["favorites", "Favorites"],
-  ["projects", "Projects"]
+  ["favorites", "Favorites"]
 ];
 
 export default async function PublicProfilePage({ params, searchParams }) {
@@ -68,7 +67,7 @@ export default async function PublicProfilePage({ params, searchParams }) {
                   key={value}
                 >
                   {label}
-                  {value !== "projects" && <span>{profile[value]?.length || 0}</span>}
+                  <span>{profile[value]?.length || 0}</span>
                 </Link>
               ))}
             </nav>
@@ -112,13 +111,6 @@ export default async function PublicProfilePage({ params, searchParams }) {
               </div>
             )}
 
-            {activeTab === "projects" && (
-              <div className="profile-empty profile-project-empty glass">
-                <FolderKanban size={25} />
-                <strong>No public projects yet</strong>
-                <span>Creator projects will live here when project publishing launches.</span>
-              </div>
-            )}
           </>
         ) : (
           <div className="profile-private glass"><EyeOff size={25} /><strong>Post history is hidden.</strong></div>

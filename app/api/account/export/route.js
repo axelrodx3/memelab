@@ -7,9 +7,11 @@ export async function GET() {
   const userId = claimsData?.claims?.sub;
   if (error || !userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const [profile, settings, posts, comments, postVotes, commentVotes, reports, notifications] = await Promise.all([
+  const [profile, settings, projects, favorites, posts, comments, postVotes, commentVotes, reports, notifications] = await Promise.all([
     supabase.from("profiles").select("*").eq("id", userId).maybeSingle(),
     supabase.from("account_settings").select("*").eq("user_id", userId).maybeSingle(),
+    supabase.from("projects").select("*").eq("user_id", userId).order("updated_at"),
+    supabase.from("template_favorites").select("*").eq("user_id", userId).order("created_at"),
     supabase.from("posts").select("*").eq("author_id", userId).order("created_at"),
     supabase.from("comments").select("*").eq("author_id", userId).order("created_at"),
     supabase.from("post_votes").select("*").eq("user_id", userId).order("created_at"),
@@ -23,6 +25,8 @@ export async function GET() {
     account_email: claimsData.claims.email || null,
     profile: profile.data || null,
     settings: settings.data || null,
+    projects: projects.data || [],
+    template_favorites: favorites.data || [],
     posts: posts.data || [],
     comments: comments.data || [],
     post_votes: postVotes.data || [],

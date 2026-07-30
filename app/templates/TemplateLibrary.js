@@ -91,7 +91,12 @@ export default function TemplateLibrary({ initialTemplates, viewerId = null }) {
   const filteredTemplates = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
     const filtered = initialTemplates.filter((template) => {
-      const searchableText = [template.name, ...(template.aliases || [])].join(" ").toLowerCase();
+      const searchableText = [
+        template.name,
+        ...(template.aliases || []),
+        ...(template.tags || []),
+        template.category
+      ].join(" ").toLowerCase();
       const matchesQuery = !normalizedQuery || searchableText.includes(normalizedQuery);
       const matchesCategory =
         category === "All" ||

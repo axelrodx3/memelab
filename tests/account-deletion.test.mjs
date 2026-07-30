@@ -8,7 +8,8 @@ test("deletes only a temporary member's uploaded files before deleting auth", as
   const deletedUsers = [];
   const files = {
     avatars: [{ id: "avatar-file", name: "avatar.webp" }],
-    community: [{ id: "post-file", name: "post.png" }]
+    community: [{ id: "post-file", name: "post.png" }],
+    "project-assets": [{ id: "overlay-file", name: "logo.png" }]
   };
   const admin = {
     storage: {
@@ -39,7 +40,8 @@ test("deletes only a temporary member's uploaded files before deleting auth", as
 
   assert.deepEqual(removed, [
     ["avatars", [`${temporaryUserId}/avatar.webp`]],
-    ["community", [`${temporaryUserId}/post.png`]]
+    ["community", [`${temporaryUserId}/post.png`]],
+    ["project-assets", [`${temporaryUserId}/logo.png`]]
   ]);
   assert.deepEqual(deletedUsers, [temporaryUserId]);
 });

@@ -1,5 +1,12 @@
 import { createClient } from "@supabase/supabase-js";
 import postgres from "postgres";
+import { fingerprintImage, minimumVisualDistance } from "../lib/template-fingerprint.mjs";
+import {
+  canonicalizeTemplate,
+  categorizeTemplate,
+  describeTemplate,
+  tagsForTemplate
+} from "../lib/template-metadata.mjs";
 
 const databaseUrl = process.env.POSTGRES_URL;
 const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -42,6 +49,8 @@ create table if not exists public.template_assets (
   source_id text not null,
   name text not null,
   aliases text[] not null default '{}',
+  tags text[] not null default '{}',
+  description text not null default '',
   category text not null default 'Trending',
   storage_path text not null unique,
   image_url text not null,
@@ -49,8 +58,17 @@ create table if not exists public.template_assets (
   height integer,
   box_count integer not null default 2,
   rank integer not null default 0,
+  content_hash text,
+  visual_hashes text[] not null default '{}',
+  quality_score smallint not null default 0 check (quality_score between 0 and 100),
   created_at timestamptz not null default now()
 );
+alter table public.template_assets
+  add column if not exists tags text[] not null default '{}',
+  add column if not exists description text not null default '',
+  add column if not exists content_hash text,
+  add column if not exists visual_hashes text[] not null default '{}',
+  add column if not exists quality_score smallint not null default 0;
 create unique index if not exists template_assets_name_lower_idx on public.template_assets (lower(name));
 create index if not exists template_assets_rank_idx on public.template_assets (rank);
 
@@ -434,14 +452,9 @@ using (
 );
 `;
 
-const CLASSICS = [
-  "drake", "distracted boyfriend", "two buttons", "change my mind",
-  "expanding brain", "success kid", "one does not simply", "disaster girl",
-  "ancient aliens", "doge", "this is fine", "always has been"
-];
-
-// Audited by visual comparison (exact hashes + perceptual hashes). Keep the
-// higher-ranked canonical template while retaining alternate names as aliases.
+// Audited with exact hashes, multi-crop perceptual hashes, scene structure, and
+// a visual review. The first id is the cleanest canonical asset; alternate
+// names are merged into its aliases before the redundant file is removed.
 const TEMPLATE_DUPLICATES = [
   ["100777631", "142009471"],
   ["188390779", "mg_woman-cat"],
@@ -456,16 +469,19 @@ const TEMPLATE_DUPLICATES = [
   ["89370399", "mg_rollsafe"],
   ["181913649", "91998305"],
   ["533936279", "mg_midwit"],
-  ["87743020", "mg_ds"]
+  ["87743020", "mg_ds"],
+  ["mg_aag", "101470"],
+  ["mg_headaches", "119215120"],
+  ["322841258", "mg_right"],
+  ["371619279", "370867422"],
+  ["50421420", "mg_dbg"],
+  ["mg_grave", "221578498"],
+  ["224015000", "222403160"],
+  ["29562797", "29617627"]
 ];
 
 function categorize(name, aliases = []) {
-  const value = `${name} ${aliases.join(" ")}`.toLowerCase();
-  if (/(doge|cat|dog|monkey|bear|bird|animal|seal|rabbit)/.test(value)) return "Animals";
-  if (/(movie|star wars|batman|spider|avengers|matrix|lord of the rings|gru|simpsons|futurama|jurassic|marvel|disney|pixar)/.test(value)) return "Movies";
-  if (/(drake|reaction|surprised|laugh|cry|sad|angry|face|side eye|fine)/.test(value)) return "Reaction";
-  if (CLASSICS.some((classic) => value.includes(classic))) return "Classic";
-  return "Trending";
+  return categorizeTemplate({ name, aliases });
 }
 
 function extensionFromPath(pathname) {
@@ -561,7 +577,13 @@ async function fetchCatalog() {
 
   return templates
     .filter((template) => !duplicateIds.has(template.id))
-    .map((template, index) => ({ ...template, rank: index + 1 }));
+    .map((template, index) => canonicalizeTemplate({ ...template, rank: index + 1 }))
+    .map((template) => ({
+      ...template,
+      category: categorizeTemplate(template),
+      tags: tagsForTemplate(template),
+      description: describeTemplate(template)
+    }));
 }
 
 async function mapWithConcurrency(items, limit, task) {
@@ -586,6 +608,11 @@ async function syncTemplates() {
   }
 
   const catalog = await fetchCatalog();
+  const existingFingerprints = await sql`
+    select id, content_hash, visual_hashes, width, height
+    from public.template_assets
+    where content_hash is not null
+  `;
   let imported = 0;
   let failed = 0;
 
@@ -594,6 +621,20 @@ async function syncTemplates() {
       const response = await fetch(template.sourceUrl, { signal: AbortSignal.timeout(30000) });
       if (!response.ok) throw new Error(`Image request failed with ${response.status}`);
       const bytes = new Uint8Array(await response.arrayBuffer());
+      const fingerprint = await fingerprintImage(bytes);
+      const nearDuplicate = existingFingerprints.find((existing) => {
+        if (existing.content_hash === fingerprint.contentHash) return true;
+        if (!existing.width || !existing.height) return false;
+        const aspectDelta = Math.abs(Math.log(
+          (existing.width / existing.height) / (fingerprint.width / fingerprint.height)
+        ));
+        return aspectDelta < 0.04
+          && minimumVisualDistance(existing.visual_hashes, fingerprint.visualHashes) <= 3;
+      });
+      if (nearDuplicate) {
+        console.log(`Template ${template.id} matches canonical asset ${nearDuplicate.id}; skipped.`);
+        return;
+      }
       const storagePath = `${template.source}/${template.sourceId}.${template.extension}`;
       const { error: uploadError } = await supabase.storage
         .from("templates")
@@ -607,26 +648,39 @@ async function syncTemplates() {
       const { data: publicUrl } = supabase.storage.from("templates").getPublicUrl(storagePath);
       await sql`
         insert into public.template_assets (
-          id, source, source_id, name, aliases, category, storage_path,
-          image_url, width, height, box_count, rank
+          id, source, source_id, name, aliases, tags, description, category, storage_path,
+          image_url, width, height, box_count, rank, content_hash, visual_hashes, quality_score
         )
         values (
           ${template.id}, ${template.source}, ${template.sourceId}, ${template.name},
-          ${template.aliases}, ${template.category}, ${storagePath},
-          ${publicUrl.publicUrl}, ${template.width}, ${template.height},
-          ${template.boxCount}, ${template.rank}
+          ${template.aliases}, ${template.tags}, ${template.description}, ${template.category}, ${storagePath},
+          ${publicUrl.publicUrl}, ${fingerprint.width}, ${fingerprint.height},
+          ${template.boxCount}, ${template.rank}, ${fingerprint.contentHash},
+          ${fingerprint.visualHashes}, ${fingerprint.qualityScore}
         )
         on conflict (id) do update set
           name = excluded.name,
           aliases = excluded.aliases,
+          tags = excluded.tags,
+          description = excluded.description,
           category = excluded.category,
           storage_path = excluded.storage_path,
           image_url = excluded.image_url,
           width = excluded.width,
           height = excluded.height,
           box_count = excluded.box_count,
-          rank = excluded.rank
+          rank = excluded.rank,
+          content_hash = excluded.content_hash,
+          visual_hashes = excluded.visual_hashes,
+          quality_score = excluded.quality_score
       `;
+      existingFingerprints.push({
+        id: template.id,
+        content_hash: fingerprint.contentHash,
+        visual_hashes: fingerprint.visualHashes,
+        width: fingerprint.width,
+        height: fingerprint.height
+      });
       imported += 1;
     } catch (error) {
       failed += 1;
@@ -638,11 +692,11 @@ async function syncTemplates() {
 }
 
 async function deduplicateTemplates() {
-  const duplicateIds = TEMPLATE_DUPLICATES.map(([, duplicateId]) => duplicateId);
+  const auditedIds = [...new Set(TEMPLATE_DUPLICATES.flat())];
   const rows = await sql`
-    select id, name, aliases, storage_path
+    select id, name, aliases, storage_path, rank
     from public.template_assets
-    where id = any(${duplicateIds})
+    where id = any(${auditedIds})
   `;
   if (!rows.length) {
     console.log("MemeLab template audit: no known visual duplicates found.");
@@ -650,10 +704,15 @@ async function deduplicateTemplates() {
   }
 
   const rowById = new Map(rows.map((row) => [row.id, row]));
-  const activePairs = TEMPLATE_DUPLICATES.filter(([, duplicateId]) => rowById.has(duplicateId));
+  const activePairs = TEMPLATE_DUPLICATES.filter(
+    ([canonicalId, duplicateId]) => rowById.has(canonicalId) && rowById.has(duplicateId)
+  );
   const storagePaths = activePairs.map(([, duplicateId]) => rowById.get(duplicateId).storage_path);
   const [{ hasFavoritesTable }] = await sql`
     select to_regclass('public.template_favorites') is not null as "hasFavoritesTable"
+  `;
+  const [{ hasProjectsTable }] = await sql`
+    select to_regclass('public.projects') is not null as "hasProjectsTable"
   `;
 
   if (storagePaths.length) {
@@ -678,6 +737,12 @@ async function deduplicateTemplates() {
           on conflict (user_id, template_id) do nothing
         `;
       }
+      if (hasProjectsTable) {
+        await transaction`
+          update public.projects set template_id = ${canonicalId}
+          where template_id = ${duplicateId}
+        `;
+      }
       await transaction`
         delete from public.posts
         where author_id is null
@@ -693,11 +758,13 @@ async function deduplicateTemplates() {
       `;
       await transaction`
         update public.template_assets
-        set aliases = ${[...new Set([
-          ...(canonical.aliases || []),
-          duplicate.name,
-          ...(duplicate.aliases || [])
-        ])]}
+        set
+          aliases = ${[...new Set([
+            ...(canonical.aliases || []),
+            duplicate.name,
+            ...(duplicate.aliases || [])
+          ])]},
+          rank = least(rank, ${duplicate.rank})
         where id = ${canonicalId}
       `;
       await transaction`delete from public.template_assets where id = ${duplicateId}`;
@@ -715,6 +782,57 @@ async function deduplicateTemplates() {
   });
 
   console.log(`MemeLab template audit: removed ${activePairs.length} visual duplicates.`);
+}
+
+async function curateTemplates() {
+  const rows = await sql`
+    select
+      id, name, aliases, tags, description, category, image_url, width, height,
+      box_count, rank, content_hash, visual_hashes, quality_score
+    from public.template_assets
+    order by rank
+  `;
+
+  let fingerprinted = 0;
+  await mapWithConcurrency(rows, 8, async (row) => {
+    const canonical = canonicalizeTemplate({ ...row, boxCount: row.box_count });
+    let fingerprint = null;
+
+    if (!row.content_hash || !row.visual_hashes?.length) {
+      const response = await fetch(row.image_url, { signal: AbortSignal.timeout(30000) });
+      if (!response.ok) throw new Error(`Stored image ${row.id} returned ${response.status}.`);
+      fingerprint = await fingerprintImage(new Uint8Array(await response.arrayBuffer()));
+      fingerprinted += 1;
+    }
+
+    const hydrated = {
+      ...canonical,
+      width: fingerprint?.width || row.width,
+      height: fingerprint?.height || row.height
+    };
+    await sql`
+      update public.template_assets
+      set
+        name = ${hydrated.name},
+        aliases = ${hydrated.aliases},
+        tags = ${tagsForTemplate(hydrated)},
+        description = ${describeTemplate(hydrated)},
+        category = ${categorizeTemplate(hydrated)},
+        width = ${hydrated.width},
+        height = ${hydrated.height},
+        content_hash = ${fingerprint?.contentHash || row.content_hash},
+        visual_hashes = ${fingerprint?.visualHashes || row.visual_hashes},
+        quality_score = ${fingerprint?.qualityScore || row.quality_score}
+      where id = ${row.id}
+    `;
+  });
+
+  await sql`
+    create unique index if not exists template_assets_content_hash_idx
+    on public.template_assets (content_hash)
+    where content_hash is not null
+  `;
+  console.log(`MemeLab catalog curated: ${rows.length} templates, ${fingerprinted} fingerprints added.`);
 }
 
 async function seedCommunity() {
@@ -743,6 +861,7 @@ try {
   await sql.unsafe(schema);
   await syncTemplates();
   await deduplicateTemplates();
+  await curateTemplates();
   await seedCommunity();
   console.log("MemeLab community bootstrap complete.");
 } finally {
