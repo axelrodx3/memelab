@@ -61,6 +61,8 @@ create table if not exists public.template_favorites (
 );
 create index if not exists template_favorites_user_created_idx
   on public.template_favorites (user_id, created_at desc);
+create index if not exists template_favorites_template_idx
+  on public.template_favorites (template_id);
 
 insert into public.account_settings (user_id)
 select id from public.profiles
@@ -263,6 +265,9 @@ as $$
 $$;
 revoke execute on function public.is_active_member() from public;
 grant execute on function public.is_active_member() to authenticated, service_role;
+
+alter function public.is_moderator() security invoker;
+alter function public.is_moderator() set search_path = '';
 
 drop policy if exists "Members create posts" on public.posts;
 create policy "Members create posts" on public.posts for insert to authenticated
