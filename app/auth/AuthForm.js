@@ -209,6 +209,13 @@ export default function AuthForm({ nextPath }) {
       </form>
 
       <p className="auth-fine-print">By continuing, you agree to keep MemeLab legal and respect the community.</p>
+      <style jsx>{`
+        .username-status { min-height: 14px; color: #737580; font-size: 10px; line-height: 1.4; }
+        .username-status.available { color: #75d6a6; }
+        .username-status.taken,
+        .username-status.invalid,
+        .username-status.error { color: #f29b9b; }
+      `}</style>
     </div>
   );
 }
