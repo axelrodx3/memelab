@@ -47,12 +47,26 @@ export default function AuthForm({ nextPath }) {
           data: { username, display_name: username }
         }
       });
-      setBusy(false);
-      if (error) return setMessage(error.message);
+      if (error) {
+        setBusy(false);
+        return setMessage(error.message);
+      }
       if (!data.session) {
         setPendingEmail(email);
-        return setMessage("Check your inbox for the MemeLab confirmation email. The link will verify your account and bring you back here.");
+        const { error: resendError } = await supabase.auth.resend({
+          type: "signup",
+          email,
+          options: {
+            emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextPath)}`
+          }
+        });
+        setBusy(false);
+        if (resendError && !resendError.message.toLowerCase().includes("rate limit")) {
+          return setMessage(`${resendError.message} If this email was already verified, switch to Log in.`);
+        }
+        return setMessage("Check your inbox for the confirmation email. If nothing arrives, this address may already be verified—switch to Log in and try your password.");
       }
+      setBusy(false);
       window.location.assign(nextPath);
       return;
     }
