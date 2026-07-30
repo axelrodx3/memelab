@@ -31,7 +31,7 @@ export default function AuthForm({ nextPath }) {
       });
       setBusy(false);
       if (error) return setMessage(error.message);
-      if (!data.session) return setMessage("Check your email to confirm your account, then come back to MemeLab.");
+      if (!data.session) return setMessage("Check your inbox for the MemeLab confirmation email. The link will verify your account and bring you back here.");
       window.location.assign(nextPath);
       return;
     }

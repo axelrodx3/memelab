@@ -9,8 +9,8 @@ export async function GET(request) {
   if (code) {
     const supabase = await createClient();
     const { error } = await supabase.auth.exchangeCodeForSession(code);
-    if (!error) return NextResponse.redirect(`${origin}${next}`);
+    if (!error) return NextResponse.redirect(`${origin}/auth/confirmed?next=${encodeURIComponent(next)}`);
   }
 
-  return NextResponse.redirect(`${origin}/auth?error=confirmation`);
+  return NextResponse.redirect(`${origin}/auth/confirmed?error=invalid`);
 }

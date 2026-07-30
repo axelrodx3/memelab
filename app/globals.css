@@ -316,7 +316,7 @@ textarea { font: inherit; }
 .home-feed-card strong { color: #e4e3e9; font-size: 13px; }
 .home-feed-card span { color: #6f717b; font-size: 10px; line-height: 1.45; }
 
-.auth-page, .account-page, .community-page, .community-post-page, .create-post-page, .profile-page, .moderation-page { background: radial-gradient(circle at 50% -18%, rgba(111,79,234,.17), transparent 35%), var(--bg); }
+.auth-page, .account-page, .community-page, .community-post-page, .create-post-page, .profile-page, .moderation-page, .confirmation-page { background: radial-gradient(circle at 50% -18%, rgba(111,79,234,.17), transparent 35%), var(--bg); }
 .auth-shell { min-height: calc(100vh - 82px); padding: 80px 0 115px; display: grid; grid-template-columns: 1fr 440px; align-items: center; gap: 95px; position: relative; z-index: 2; }
 .auth-intro h1 { margin: 17px 0 18px; font: 700 clamp(47px, 5.2vw, 70px)/1.02 var(--font-manrope), sans-serif; letter-spacing: -.06em; }
 .auth-intro > p { max-width: 520px; color: var(--muted); line-height: 1.7; }
@@ -337,6 +337,16 @@ textarea { font: inherit; }
 .auth-submit:disabled, .publish-post:disabled, .account-card > button:disabled { opacity: .55; cursor: wait; }
 .auth-message, .account-message, .create-post-message { margin: 0; color: #d9cfff; font-size: 11px; line-height: 1.5; }
 .auth-fine-print { margin: 21px 0 0; text-align: center; color: #5f616b; font-size: 9px; line-height: 1.5; }
+
+.confirmation-shell { min-height: calc(100vh - 82px); padding: 80px 0 110px; display: grid; place-items: center; position: relative; z-index: 2; }
+.confirmation-card { width: min(620px, 100%); padding: 55px; border-radius: 25px; text-align: center; overflow: hidden; position: relative; }
+.confirmation-card::before { content: ""; position: absolute; inset: 0 0 auto; height: 3px; background: linear-gradient(90deg, #7957ef, #c0b0ff); }
+.confirmation-card.error::before { background: linear-gradient(90deg, #d45e7a, #ff9bad); }
+.confirmation-icon { width: 68px; height: 68px; margin: 0 auto 25px; display: grid; place-items: center; border: 1px solid rgba(167,139,250,.27); border-radius: 20px; background: rgba(139,109,248,.11); color: #bcaaff; box-shadow: 0 18px 50px rgba(84,55,179,.2); }
+.confirmation-card.error .confirmation-icon { border-color: rgba(255,128,153,.25); background: rgba(255,91,123,.08); color: #ff9cb0; }
+.confirmation-card h1 { margin: 14px 0 13px; font: 700 clamp(39px, 5vw, 56px)/1.03 var(--font-manrope), sans-serif; letter-spacing: -.055em; }
+.confirmation-card > p { max-width: 470px; margin: 0 auto; color: var(--muted); font-size: 14px; line-height: 1.7; }
+.confirmation-actions { margin-top: 30px; display: flex; justify-content: center; gap: 10px; }
 
 .account-shell, .moderation-shell { position: relative; z-index: 2; padding: 82px 0 120px; }
 .account-heading { margin-bottom: 31px; }
@@ -521,6 +531,9 @@ textarea { font: inherit; }
   .auth-shell { padding: 52px 0 85px; }
   .auth-intro h1 { font-size: 43px; }
   .auth-card { padding-inline: 20px; }
+  .confirmation-shell { min-height: calc(100vh - 70px); padding: 45px 0 75px; }
+  .confirmation-card { padding: 40px 22px; border-radius: 20px; }
+  .confirmation-actions { flex-direction: column; }
   .account-shell, .moderation-shell { padding: 55px 0 85px; }
   .account-card { padding: 20px; }
   .account-fields { grid-template-columns: 1fr; }
