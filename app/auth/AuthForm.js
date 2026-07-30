@@ -24,6 +24,10 @@ export default function AuthForm({ nextPath }) {
       }
     });
     setResendBusy(false);
+    if (error?.message.toLowerCase().includes("rate limit")) {
+      setMessage("Email sending is temporarily limited. Please wait before requesting another message, or try logging in—your earlier link may have already verified the account.");
+      return;
+    }
     setMessage(error ? error.message : "A fresh MemeLab confirmation email is on its way.");
   };
 
@@ -53,18 +57,26 @@ export default function AuthForm({ nextPath }) {
       }
       if (!data.session) {
         setPendingEmail(email);
-        const { error: resendError } = await supabase.auth.resend({
-          type: "signup",
-          email,
-          options: {
-            emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextPath)}`
+        const mayAlreadyExist = !data.user?.identities?.length;
+        if (mayAlreadyExist) {
+          const { error: resendError } = await supabase.auth.resend({
+            type: "signup",
+            email,
+            options: {
+              emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextPath)}`
+            }
+          });
+          setBusy(false);
+          if (resendError?.message.toLowerCase().includes("rate limit")) {
+            return setMessage("No new email was sent because the email service is temporarily rate-limited. Your earlier link may have already verified this address—switch to Log in and try your password.");
           }
-        });
-        setBusy(false);
-        if (resendError && !resendError.message.toLowerCase().includes("rate limit")) {
-          return setMessage(`${resendError.message} If this email was already verified, switch to Log in.`);
+          if (resendError) {
+            return setMessage(`${resendError.message} If this email was already verified, switch to Log in.`);
+          }
+          return setMessage("A fresh confirmation email was requested. If nothing arrives, this address is probably already verified—switch to Log in.");
         }
-        return setMessage("Check your inbox for the confirmation email. If nothing arrives, this address may already be verified—switch to Log in and try your password.");
+        setBusy(false);
+        return setMessage("Check your inbox for the confirmation email. The link will verify your account.");
       }
       setBusy(false);
       window.location.assign(nextPath);
