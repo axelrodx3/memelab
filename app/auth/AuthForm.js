@@ -1,8 +1,10 @@
 "use client";
 
 import { ArrowRight, AtSign, LockKeyhole, RefreshCw, UserRound } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createClient } from "../../lib/supabase/client";
+
+const RESEND_COOLDOWN_SECONDS = 60;
 
 export default function AuthForm({ nextPath }) {
   const [mode, setMode] = useState("signin");
@@ -10,9 +12,18 @@ export default function AuthForm({ nextPath }) {
   const [busy, setBusy] = useState(false);
   const [pendingEmail, setPendingEmail] = useState("");
   const [resendBusy, setResendBusy] = useState(false);
+  const [resendCooldown, setResendCooldown] = useState(0);
+
+  useEffect(() => {
+    if (!resendCooldown) return undefined;
+    const timer = window.setInterval(() => {
+      setResendCooldown((seconds) => Math.max(0, seconds - 1));
+    }, 1000);
+    return () => window.clearInterval(timer);
+  }, [resendCooldown]);
 
   const resendConfirmation = async () => {
-    if (!pendingEmail) return;
+    if (!pendingEmail || resendBusy || resendCooldown) return;
     setResendBusy(true);
     setMessage("");
     const supabase = createClient();
@@ -24,11 +35,30 @@ export default function AuthForm({ nextPath }) {
       }
     });
     setResendBusy(false);
-    if (error?.message.toLowerCase().includes("rate limit")) {
+    if (error) {
+      if (error.message.toLowerCase().includes("rate limit")) {
+        setResendCooldown(RESEND_COOLDOWN_SECONDS);
+        setMessage("Email sending is temporarily limited. Wait a minute before trying again. If you already used an earlier link, try logging in instead.");
+        return;
+      }
+      setMessage(error.message);
+      return;
+    }
+    setResendCooldown(RESEND_COOLDOWN_SECONDS);
+    setMessage("If this email belongs to an unverified MemeLab account, a fresh confirmation link has been sent.");
+  };
+
+  const showAuthError = (error) => {
+    const errorMessage = error.message.toLowerCase();
+    if (errorMessage.includes("rate limit")) {
       setMessage("Email sending is temporarily limited. Please wait before requesting another message, or try logging in—your earlier link may have already verified the account.");
       return;
     }
-    setMessage(error ? error.message : "A fresh MemeLab confirmation email is on its way.");
+    if (errorMessage.includes("already registered") || error.code === "user_already_exists") {
+      setMessage("An account already exists for this email. Log in instead, or use Resend confirmation if the account is still unverified.");
+      return;
+    }
+    setMessage(error.message);
   };
 
   const submit = async (event) => {
@@ -53,30 +83,16 @@ export default function AuthForm({ nextPath }) {
       });
       if (error) {
         setBusy(false);
-        return setMessage(error.message);
+        setPendingEmail(email);
+        showAuthError(error);
+        return;
       }
       if (!data.session) {
         setPendingEmail(email);
-        const mayAlreadyExist = !data.user?.identities?.length;
-        if (mayAlreadyExist) {
-          const { error: resendError } = await supabase.auth.resend({
-            type: "signup",
-            email,
-            options: {
-              emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextPath)}`
-            }
-          });
-          setBusy(false);
-          if (resendError?.message.toLowerCase().includes("rate limit")) {
-            return setMessage("No new email was sent because the email service is temporarily rate-limited. Your earlier link may have already verified this address—switch to Log in and try your password.");
-          }
-          if (resendError) {
-            return setMessage(`${resendError.message} If this email was already verified, switch to Log in.`);
-          }
-          return setMessage("A fresh confirmation email was requested. If nothing arrives, this address is probably already verified—switch to Log in.");
-        }
         setBusy(false);
-        return setMessage("Check your inbox for the confirmation email. The link will verify your account.");
+        setResendCooldown(RESEND_COOLDOWN_SECONDS);
+        setMessage("Check your inbox for a confirmation link. If this email is already verified, switch to Log in instead.");
+        return;
       }
       setBusy(false);
       window.location.assign(nextPath);
@@ -87,7 +103,8 @@ export default function AuthForm({ nextPath }) {
     setBusy(false);
     if (error) {
       if (error.message.toLowerCase().includes("email not confirmed")) setPendingEmail(email);
-      return setMessage(error.message);
+      showAuthError(error);
+      return;
     }
     window.location.assign(nextPath);
   };
@@ -117,8 +134,8 @@ export default function AuthForm({ nextPath }) {
 
         {message && <p className="auth-message" role="status">{message}</p>}
         {pendingEmail && (
-          <button className="resend-confirmation" type="button" onClick={resendConfirmation} disabled={resendBusy}>
-            <RefreshCw size={14} /> {resendBusy ? "Sending…" : "Resend confirmation email"}
+          <button className="resend-confirmation" type="button" onClick={resendConfirmation} disabled={resendBusy || resendCooldown > 0}>
+            <RefreshCw size={14} /> {resendBusy ? "Sending…" : resendCooldown > 0 ? `Resend available in ${resendCooldown}s` : "Resend confirmation email"}
           </button>
         )}
         <button className="primary-cta auth-submit" disabled={busy}>
