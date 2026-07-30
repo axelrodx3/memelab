@@ -33,7 +33,9 @@ export default async function CommunityPostPage({ params }) {
       <div className="ambient ambient-one" />
       <SiteHeader />
       <div className="post-detail-shell shell">
-        <Link className="back-to-feed" href="/community"><ArrowLeft size={15} /> Back to the feed</Link>
+        <Link className="back-to-feed" href={post.postKind === "discussion" ? `/community/discuss?channel=${post.channelSlug}` : "/community"}>
+          <ArrowLeft size={15} /> {post.postKind === "discussion" ? "Back to discussions" : "Back to the feed"}
+        </Link>
         <PostCard
           post={post}
           viewerId={viewer?.id || null}

@@ -1,9 +1,9 @@
 "use client";
 
 import {
-  Bell, Check, ChevronRight, CircleUserRound, Download, Eye, EyeOff,
+  Ban, Bell, Check, ChevronRight, CircleUserRound, Download, Eye, EyeOff,
   Clock3, ImagePlus, KeyRound, Laptop, LogOut, RotateCcw, Save, ShieldCheck,
-  Trash2, UploadCloud, UserRound
+  Trash2, UploadCloud, UserRound, UserX
 } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -61,13 +61,14 @@ function Toggle({ checked, onChange, title, description }) {
   );
 }
 
-export default function AccountCenter({ profile: initialProfile, settings: initialSettings }) {
+export default function AccountCenter({ profile: initialProfile, settings: initialSettings, initialBlocks = [] }) {
   const [tab, setTab] = useState("profile");
   const [profile, setProfile] = useState(initialProfile);
   const [settings, setSettings] = useState(initialSettings);
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState("");
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [blocks, setBlocks] = useState(initialBlocks);
   const [now, setNow] = useState(() => Date.now());
   const avatarInput = useRef(null);
   const bannerInput = useRef(null);
@@ -152,7 +153,42 @@ export default function AccountCenter({ profile: initialProfile, settings: initi
     if (profileError) throw profileError;
     const { error: settingsError } = await supabase.from("account_settings").update(settings).eq("user_id", profile.id);
     if (settingsError) throw settingsError;
+    window.dispatchEvent(new CustomEvent("memelab:presence-settings", { detail: { enabled: settings.show_online_status } }));
     setMessage("Settings saved.");
+  });
+
+  const blockUser = async (event) => {
+    event.preventDefault();
+    const username = String(new FormData(event.currentTarget).get("blockedUsername") || "").trim();
+    await run("block", async () => {
+      const supabase = createClient();
+      const { data: blocked, error: profileError } = await supabase
+        .from("profiles")
+        .select("id,username,display_name,avatar_url")
+        .ilike("username", username)
+        .eq("account_status", "active")
+        .maybeSingle();
+      if (profileError) throw profileError;
+      if (!blocked) throw new Error("No active MemeLab member uses that username.");
+      if (blocked.id === profile.id) throw new Error("You cannot block your own account.");
+      const { error } = await supabase.from("user_blocks").insert({ blocker_id: profile.id, blocked_id: blocked.id });
+      if (error?.code === "23505") throw new Error("That member is already blocked.");
+      if (error) throw error;
+      setBlocks((current) => [{ blocked_id: blocked.id, created_at: new Date().toISOString(), blocked }, ...current]);
+      event.currentTarget.reset();
+      setMessage(`@${blocked.username} is now blocked.`);
+    });
+  };
+
+  const unblockUser = (blockedId) => run("unblock", async () => {
+    const { error } = await createClient()
+      .from("user_blocks")
+      .delete()
+      .eq("blocker_id", profile.id)
+      .eq("blocked_id", blockedId);
+    if (error) throw error;
+    setBlocks((current) => current.filter((item) => item.blocked_id !== blockedId));
+    setMessage("Member unblocked.");
   });
 
   const selectGender = async (gender) => run("gender", async () => {
@@ -285,8 +321,8 @@ export default function AccountCenter({ profile: initialProfile, settings: initi
             <h1>{profile.display_name || profile.username}</h1>
             <p>@{profile.username} · {profile.karma} karma</p>
           </div>
-          <div className={profile.account_status === "active" ? styles.active : styles.inactive}>
-            <i /> {profile.account_status === "active" ? "Active" : "Deactivated"}
+          <div className={profile.account_status === "active" && settings.show_online_status ? styles.active : styles.inactive}>
+            <i /> {profile.account_status !== "active" ? "Deactivated" : settings.show_online_status ? "Online" : "Offline"}
           </div>
         </div>
       </header>
@@ -375,8 +411,28 @@ export default function AccountCenter({ profile: initialProfile, settings: initi
                 <Toggle checked={profile.mature_content_enabled} onChange={(value) => setProfile((current) => ({ ...current, mature_content_enabled: value }))} title="Reveal mature content automatically" description="Otherwise mature posts stay behind a click-to-view warning." />
                 <Toggle checked={profile.profile_visibility === "public"} onChange={(value) => setProfile((current) => ({ ...current, profile_visibility: value ? "public" : "private" }))} title="Public profile" description="Allow other members to open your profile and see your public posts." />
                 <Toggle checked={profile.show_activity} onChange={(value) => setProfile((current) => ({ ...current, show_activity: value }))} title="Show profile activity" description="Display your public posts, comments and saved templates on your profile." />
+                <Toggle checked={settings.show_online_status} onChange={(value) => setSettings((current) => ({ ...current, show_online_status: value }))} title="Show when I’m online" description="Let other members see your live Online status. Turn this off to always appear Offline." />
+              </div>
+              <div className={styles.selectSetting}>
+                <div><strong>Who can message me</strong><small>This permission is ready for MemeLab’s private messaging launch.</small></div>
+                <select value={settings.message_permission} onChange={(event) => setSettings((current) => ({ ...current, message_permission: event.target.value }))}>
+                  <option value="everyone">Everyone</option>
+                  <option value="interactions">People I’ve interacted with</option>
+                  <option value="nobody">Nobody</option>
+                </select>
               </div>
               <button className={styles.primaryButton} onClick={() => saveSettings("preferences")} disabled={busy === "preferences"}><Save size={15} /> Save preferences</button>
+              <div className={styles.blockSection}>
+                <div className={styles.panelHeading}><div><span>SAFETY</span><h2>Blocked members</h2><p>Blocked members will not be able to contact you when messaging launches.</p></div><Ban size={22} /></div>
+                <form className={styles.blockForm} onSubmit={blockUser}>
+                  <input name="blockedUsername" required pattern="[A-Za-z0-9_]+" placeholder="Enter a username" />
+                  <button className={styles.ghostButton} disabled={busy === "block"}><UserX size={14} /> Block</button>
+                </form>
+                <div className={styles.blockList}>
+                  {blocks.map((item) => <div key={item.blocked_id}><span><strong>{item.blocked?.display_name || item.blocked?.username}</strong><small>@{item.blocked?.username}</small></span><button type="button" onClick={() => unblockUser(item.blocked_id)} disabled={busy === "unblock"}>Unblock</button></div>)}
+                  {!blocks.length && <p>You haven’t blocked anyone.</p>}
+                </div>
+              </div>
             </section>
           )}
 

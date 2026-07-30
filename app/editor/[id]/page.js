@@ -8,6 +8,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createClient } from "../../../lib/supabase/client";
+import { loadCustomBase } from "../../../lib/custom-base";
 
 const DEFAULT_STATE = {
   topText: "WHEN YOU FIND THE PERFECT TEMPLATE",
@@ -123,20 +124,23 @@ export default function MemeEditor() {
     const supabase = createClient();
 
     const initialize = async () => {
-      const [templateResponse, userResponse] = await Promise.all([
+      const [templateResponse, userResponse, customBase] = await Promise.all([
         fetch("/api/templates").then((response) => response.json()),
-        supabase.auth.getUser()
+        supabase.auth.getUser(),
+        id === "custom" ? loadCustomBase() : Promise.resolve(null)
       ]);
       if (!active) return;
 
-      const selected = (templateResponse.templates || []).find((item) => item.id === id) || null;
+      const selected = id === "custom" && customBase?.file
+        ? { id: "custom", name: customBase.name || "Custom image", url: URL.createObjectURL(customBase.file) }
+        : (templateResponse.templates || []).find((item) => item.id === id) || null;
       const user = userResponse.data?.user || null;
       const requestedProjectId = new URLSearchParams(window.location.search).get("project");
       setTemplate(selected);
       setViewer(user);
       setProjectName(selected ? `Untitled ${selected.name}`.slice(0, 80) : "Untitled meme");
 
-      if (requestedProjectId && user) {
+      if (requestedProjectId && user && id !== "custom") {
         const { data: project } = await supabase
           .from("projects")
           .select("id,name,template_id,editor_state")
@@ -171,7 +175,7 @@ export default function MemeEditor() {
             if (draft.overlayDataUrl) setOverlay(draft.overlayDataUrl);
           } catch {}
         }
-        setSaveStatus(user ? "Autosave ready" : "Saved on this device");
+        setSaveStatus(user && id !== "custom" ? "Autosave ready" : "Saved on this device");
       }
       setReady(true);
     };
@@ -218,10 +222,10 @@ export default function MemeEditor() {
       window.localStorage.setItem(localDraftKey(id), JSON.stringify({
         name: projectName,
         editorState: state,
-        overlayDataUrl: viewer ? null : overlay
+        overlayDataUrl: !viewer || id === "custom" ? overlay : null
       }));
 
-      if (!viewer) {
+      if (!viewer || id === "custom") {
         const isCurrent = saveVersion === editVersionRef.current;
         editedRef.current = !isCurrent;
         pendingSaveRef.current ||= !isCurrent;
@@ -336,7 +340,7 @@ export default function MemeEditor() {
     });
     setOverlay(dataUrl);
 
-    if (viewer) {
+    if (viewer && id !== "custom") {
       const extension = file.type === "image/png" ? "png" : file.type === "image/webp" ? "webp" : "jpg";
       const path = `${viewer.id}/${crypto.randomUUID()}.${extension}`;
       const supabase = createClient();
@@ -386,7 +390,7 @@ export default function MemeEditor() {
   return (
     <main className="editor-page">
       <header className="editor-header">
-        <Link href="/templates" className="editor-back"><ArrowLeft size={18} /> MemeLab</Link>
+        <Link href="/studio" className="editor-back"><ArrowLeft size={18} /> MemeLab Studio</Link>
         <div className="editor-project-status" title={saveError || saveStatus}>
           <StatusIcon size={13} className={saveStatus === "Saving…" ? "spin" : ""} />
           <span>{saveError || saveStatus}</span>
@@ -450,12 +454,17 @@ export default function MemeEditor() {
             />
           </section>
 
-          {!viewer && (
+          {id === "custom" ? (
+            <div className="editor-sync-callout">
+              <Cloud size={15} />
+              <span><strong>Private to this device</strong>Custom base uploads stay in this browser.</span>
+            </div>
+          ) : !viewer ? (
             <Link className="editor-sync-callout" href={`/auth?next=/editor/${id}`}>
               <Cloud size={15} />
               <span><strong>Sync across devices</strong>Sign in to save projects to your account.</span>
             </Link>
-          )}
+          ) : null}
 
           <button className="reset-editor" onClick={resetEditor}>
             <RotateCcw size={15} /> Reset canvas

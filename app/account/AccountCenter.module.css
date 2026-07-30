@@ -74,6 +74,22 @@
 .toggle i::after { content: ""; display: block; width: 18px; height: 18px; border-radius: 50%; background: #777984; transition: transform .2s, background .2s; }
 .toggle input:checked + i { background: #7960d6; }
 .toggle input:checked + i::after { transform: translateX(16px); background: #f3f0ff; }
+.selectSetting { min-height: 72px; margin-top: 9px; padding: 13px 15px; border: 1px solid var(--border); border-radius: 12px; background: rgba(3,4,7,.28); display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 14px; }
+.selectSetting > div { display: grid; gap: 5px; }
+.selectSetting strong { color: #dedde5; font-size: 10px; }
+.selectSetting small { color: #6d6f79; font-size: 9px; }
+.selectSetting select { height: 38px; padding: 0 30px 0 10px; border: 1px solid var(--border); border-radius: 9px; background: #111218; color: #c6c3d1; font-size: 9px; }
+.blockSection { margin-top: 28px; padding-top: 27px; border-top: 1px solid var(--border); }
+.blockSection .panelHeading { margin-bottom: 16px; }
+.blockForm { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
+.blockForm input { height: 40px; padding: 0 12px; border: 1px solid var(--border); border-radius: 10px; outline: 0; background: rgba(3,4,7,.35); color: #eeeef2; font-size: 10px; }
+.blockList { margin-top: 12px; display: grid; gap: 7px; }
+.blockList > div { min-height: 55px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 11px; display: flex; align-items: center; justify-content: space-between; }
+.blockList span { display: grid; gap: 3px; }
+.blockList strong { color: #d9d7e0; font-size: 10px; }
+.blockList small { color: #686a75; font-size: 8px; }
+.blockList button { border: 0; background: transparent; color: #b09cf3; font-size: 9px; cursor: pointer; }
+.blockList p { margin: 2px 0 0; color: #696b75; font-size: 9px; }
 .deliveryNotice { margin-bottom: 15px; padding: 14px 15px; border: 1px solid rgba(167,139,250,.18); border-radius: 13px; background: linear-gradient(120deg, rgba(139,109,248,.09), rgba(255,255,255,.02)); display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 12px; color: #aa96f3; }
 .deliveryNotice div { display: grid; gap: 4px; }
 .deliveryNotice strong { color: #ddd8ee; font-size: 10px; }
@@ -118,6 +134,7 @@
   .genderGrid, .fields { grid-template-columns: 1fr; }
   .fields .wide { grid-column: auto; }
   .inlineForm { grid-template-columns: 1fr; }
+  .selectSetting, .blockForm { grid-template-columns: 1fr; }
   .dangerAction { align-items: flex-start; flex-direction: column; }
   .deliveryNotice { grid-template-columns: auto 1fr; }
   .deliveryNotice > span { grid-column: 2; justify-self: start; }

@@ -4,6 +4,7 @@ import { FolderKanban, Menu, Plus, X } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import AuthControls from "./AuthControls";
+import NotificationBell from "./NotificationBell";
 
 export function BrandMark() {
   return (
@@ -27,12 +28,13 @@ export default function SiteHeader() {
       <div className="nav-links">
         <Link href="/templates">Templates</Link>
         <Link href="/community">Community</Link>
-        <Link href="/templates">Studio</Link>
+        <Link href="/studio">Studio</Link>
         <Link href="/projects">Projects</Link>
         <Link href="/templates?category=Favorites">Favorites</Link>
       </div>
 
       <div className="nav-actions">
+        <NotificationBell />
         <Link className="icon-button" href="/projects" aria-label="Your projects">
           <FolderKanban size={18} />
         </Link>
@@ -54,7 +56,7 @@ export default function SiteHeader() {
         <div className="mobile-menu glass">
           <Link href="/templates" onClick={() => setMobileOpen(false)}>Templates</Link>
           <Link href="/community" onClick={() => setMobileOpen(false)}>Community</Link>
-          <Link href="/templates" onClick={() => setMobileOpen(false)}>MemeLab Studio</Link>
+          <Link href="/studio" onClick={() => setMobileOpen(false)}>MemeLab Studio</Link>
           <Link href="/projects" onClick={() => setMobileOpen(false)}>Projects</Link>
           <Link href="/templates?category=Favorites" onClick={() => setMobileOpen(false)}>Favorites</Link>
           <AuthControls compact />

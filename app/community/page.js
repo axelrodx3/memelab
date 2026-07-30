@@ -1,9 +1,10 @@
 import { Flame, ImagePlus, Sparkles, TrendingUp } from "lucide-react";
 import Link from "next/link";
 import SiteHeader from "../components/SiteHeader";
-import { getCommunityPosts } from "../../lib/community";
+import { getCommunityPosts, getCommunityStats } from "../../lib/community";
 import { getViewer } from "../../lib/supabase/server";
 import CommunityFeed from "./CommunityFeed";
+import CommunityPulse from "./CommunityPulse";
 
 export const metadata = {
   title: "Community — MemeLab",
@@ -17,7 +18,7 @@ export default async function CommunityPage({ searchParams }) {
   const params = await searchParams;
   const sort = validSorts.has(params.sort) ? params.sort : "hot";
   const viewer = await getViewer();
-  const posts = await getCommunityPosts(sort, viewer?.id);
+  const [posts, stats] = await Promise.all([getCommunityPosts(sort, viewer?.id), getCommunityStats()]);
 
   return (
     <main className="community-page">
@@ -35,6 +36,11 @@ export default async function CommunityPage({ searchParams }) {
         </Link>
       </section>
 
+      <nav className="community-mode-nav shell glass" aria-label="Community areas">
+        <Link className="active" href="/community">Image feed</Link>
+        <Link href="/community/discuss">Discussions</Link>
+      </nav>
+
       <div className="community-layout shell">
         <section className="feed-column">
           <nav className="feed-tabs glass" aria-label="Community sorting">
@@ -50,15 +56,7 @@ export default async function CommunityPage({ searchParams }) {
         </section>
 
         <aside className="community-sidebar">
-          <div className="community-about glass">
-            <span className="section-label">WELCOME TO MEMELAB</span>
-            <h2>Where ideas compete.</h2>
-            <p>A living image community built around creativity, humor and internet culture.</p>
-            <div className="community-stat-grid">
-              <span><strong>{posts.length}</strong> in this feed</span>
-              <span><strong>24/7</strong> community</span>
-            </div>
-          </div>
+          <CommunityPulse stats={stats} />
           <div className="community-standards glass">
             <h3>Community essentials</h3>
             <ol>
@@ -68,7 +66,7 @@ export default async function CommunityPage({ searchParams }) {
               <li>Report illegal or abusive activity.</li>
             </ol>
           </div>
-          <Link className="studio-sidebar-card" href="/templates">
+          <Link className="studio-sidebar-card" href="/studio">
             <span>MemeLab Studio</span>
             <strong>Turn an idea into the next post.</strong>
           </Link>

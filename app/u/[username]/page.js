@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import SiteHeader from "../../components/SiteHeader";
+import PresenceStatus from "../../components/PresenceStatus";
 import { getPublicProfile } from "../../../lib/community";
 import { templateHref } from "../../../lib/template-utils";
 
@@ -49,6 +50,7 @@ export default async function PublicProfilePage({ params, searchParams }) {
             {!profile.isPrivate && profile.bio && <div className="profile-bio">{profile.bio}</div>}
           </div>
           <div className="profile-stats">
+            <PresenceStatus userId={profile.id} />
             <span><TrendingUp size={16} /><strong>{profile.karma}</strong> karma</span>
             {!profile.isPrivate && profile.show_activity && <span><ImageIcon size={16} /><strong>{profile.posts.length}</strong> posts</span>}
             <span><CalendarDays size={16} />Joined {profile.created_at?.slice(0, 10)}</span>

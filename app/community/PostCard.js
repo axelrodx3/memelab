@@ -76,11 +76,12 @@ export default function PostCard({ post, viewerId, showMature = false, detail = 
       </header>
 
       <div className="post-copy">
+        {post.channelSlug && <Link className="discussion-channel-chip" href={`/community/discuss?channel=${post.channelSlug}`}>{post.channelSlug.replace("-", " ")}</Link>}
         {detail ? <h1>{post.title}</h1> : <h2><Link href={`/community/${post.id}`}>{post.title}</Link></h2>}
         {post.caption && <p>{post.caption}</p>}
       </div>
 
-      <div className={`post-image-frame ${!revealed ? "mature-hidden" : ""}`}>
+      {post.imageUrl && <div className={`post-image-frame ${!revealed ? "mature-hidden" : ""}`}>
         <Image
           src={post.imageUrl}
           alt={revealed ? post.title : "Mature content hidden"}
@@ -96,7 +97,7 @@ export default function PostCard({ post, viewerId, showMature = false, detail = 
             <button type="button" onClick={() => setRevealed(true)}><Eye size={16} /> View post</button>
           </div>
         )}
-      </div>
+      </div>}
 
       <footer className="post-actions">
         <div className="vote-control">

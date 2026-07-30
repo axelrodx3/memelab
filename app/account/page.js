@@ -13,9 +13,14 @@ export default async function AccountPage() {
   const supabase = await createClient();
   const { data: settings } = await supabase
     .from("account_settings")
-    .select("gender,visibility_before_deactivation,notification_email,notification_replies,notification_votes")
+    .select("gender,visibility_before_deactivation,notification_email,notification_replies,notification_votes,show_online_status,message_permission")
     .eq("user_id", viewer.id)
     .maybeSingle();
+  const { data: blocks } = await supabase
+    .from("user_blocks")
+    .select("blocked_id,created_at,blocked:profiles!user_blocks_blocked_id_fkey(username,display_name,avatar_url)")
+    .eq("blocker_id", viewer.id)
+    .order("created_at", { ascending: false });
 
   return (
     <main className="account-page">
@@ -23,12 +28,15 @@ export default async function AccountPage() {
       <SiteHeader />
       <AccountCenter
         profile={viewer}
+        initialBlocks={blocks || []}
         settings={settings || {
           gender: null,
           visibility_before_deactivation: "public",
           notification_email: true,
           notification_replies: true,
-          notification_votes: true
+          notification_votes: true,
+          show_online_status: true,
+          message_permission: "everyone"
         }}
       />
     </main>
