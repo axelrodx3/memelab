@@ -54,7 +54,7 @@ create policy "Members delete their projects" on public.projects
   for delete to authenticated
   using ((select auth.uid()) = user_id);
 
-revoke all on public.projects from anon;
+revoke all on public.projects from anon, authenticated;
 grant select, insert, update, delete on public.projects to authenticated;
 grant all on public.projects to service_role;
 
