@@ -42,7 +42,7 @@ export default async function PublicProfilePage({ params, searchParams }) {
           <div className="profile-summary">
             <div className="profile-avatar">
               {profile.avatar_url
-                ? <Image src={profile.avatar_url} alt={`${profile.display_name || profile.username}'s profile`} fill priority sizes="105px" />
+                ? <Image src={profile.avatar_url} alt={`${profile.display_name || profile.username}'s profile`} fill priority sizes="108px" />
                 : (profile.display_name || profile.username).charAt(0).toUpperCase()}
             </div>
             <div className="profile-identity">

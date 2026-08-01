@@ -95,6 +95,7 @@ create unique index if not exists posts_seed_template_idx
 create index if not exists posts_hot_idx on public.posts (status, vote_score desc, created_at desc);
 create index if not exists posts_new_idx on public.posts (status, created_at desc);
 create index if not exists posts_author_idx on public.posts (author_id, created_at desc);
+alter table public.posts add column if not exists edited_at timestamptz;
 
 create table if not exists public.post_votes (
   post_id uuid not null references public.posts(id) on delete cascade,
@@ -117,6 +118,7 @@ create table if not exists public.comments (
   updated_at timestamptz not null default now()
 );
 create index if not exists comments_post_idx on public.comments (post_id, created_at);
+alter table public.comments add column if not exists edited_at timestamptz;
 
 create table if not exists public.comment_votes (
   comment_id uuid not null references public.comments(id) on delete cascade,
@@ -208,15 +210,90 @@ begin
 end;
 $$;
 
+create or replace function public.enforce_post_edit_window()
+returns trigger
+language plpgsql
+security invoker
+set search_path = ''
+as $$
+begin
+  if new.author_id is distinct from old.author_id
+    or new.created_at is distinct from old.created_at
+    or new.image_url is distinct from old.image_url
+    or new.storage_path is distinct from old.storage_path
+    or new.source_template_id is distinct from old.source_template_id
+    or new.post_kind is distinct from old.post_kind
+    or new.channel_slug is distinct from old.channel_slug
+    or new.status is distinct from old.status then
+    if not public.is_moderator() then
+      raise exception 'Only post text and the mature label can be edited.';
+    end if;
+  end if;
+
+  if new.title is distinct from old.title
+    or new.caption is distinct from old.caption
+    or new.is_mature is distinct from old.is_mature then
+    if not public.is_moderator() and (
+      old.author_id is distinct from (select auth.uid())
+      or old.created_at < now() - interval '1 hour'
+    ) then
+      raise exception 'Posts can only be edited for one hour after publishing.';
+    end if;
+    new.edited_at = now();
+  else
+    new.edited_at = old.edited_at;
+  end if;
+  return new;
+end;
+$$;
+
+create or replace function public.enforce_comment_edit_window()
+returns trigger
+language plpgsql
+security invoker
+set search_path = ''
+as $$
+begin
+  if new.author_id is distinct from old.author_id
+    or new.post_id is distinct from old.post_id
+    or new.parent_id is distinct from old.parent_id
+    or new.created_at is distinct from old.created_at
+    or new.status is distinct from old.status then
+    if not public.is_moderator() then
+      raise exception 'Only comment text can be edited.';
+    end if;
+  end if;
+
+  if new.body is distinct from old.body then
+    if not public.is_moderator() and (
+      old.author_id is distinct from (select auth.uid())
+      or old.created_at < now() - interval '1 hour'
+    ) then
+      raise exception 'Comments can only be edited for one hour after posting.';
+    end if;
+    new.edited_at = now();
+  else
+    new.edited_at = old.edited_at;
+  end if;
+  return new;
+end;
+$$;
+
 drop trigger if exists profiles_touch_updated_at on public.profiles;
 create trigger profiles_touch_updated_at before update on public.profiles
 for each row execute procedure public.touch_updated_at();
 drop trigger if exists posts_touch_updated_at on public.posts;
 create trigger posts_touch_updated_at before update on public.posts
 for each row execute procedure public.touch_updated_at();
+drop trigger if exists posts_enforce_edit_window on public.posts;
+create trigger posts_enforce_edit_window before update on public.posts
+for each row execute procedure public.enforce_post_edit_window();
 drop trigger if exists comments_touch_updated_at on public.comments;
 create trigger comments_touch_updated_at before update on public.comments
 for each row execute procedure public.touch_updated_at();
+drop trigger if exists comments_enforce_edit_window on public.comments;
+create trigger comments_enforce_edit_window before update on public.comments
+for each row execute procedure public.enforce_comment_edit_window();
 drop trigger if exists post_votes_touch_updated_at on public.post_votes;
 create trigger post_votes_touch_updated_at before update on public.post_votes
 for each row execute procedure public.touch_updated_at();
@@ -417,8 +494,8 @@ create policy "Members create posts" on public.posts for insert to authenticated
 with check ((select auth.uid()) = author_id);
 drop policy if exists "Members update their posts" on public.posts;
 create policy "Members update their posts" on public.posts for update to authenticated
-using ((select auth.uid()) = author_id or public.is_moderator())
-with check ((select auth.uid()) = author_id or public.is_moderator());
+using (((select auth.uid()) = author_id and created_at >= now() - interval '1 hour') or public.is_moderator())
+with check (((select auth.uid()) = author_id or public.is_moderator()));
 drop policy if exists "Members delete their posts" on public.posts;
 create policy "Members delete their posts" on public.posts for delete to authenticated
 using ((select auth.uid()) = author_id or public.is_moderator());
@@ -444,8 +521,8 @@ create policy "Members create comments" on public.comments for insert to authent
 with check ((select auth.uid()) = author_id);
 drop policy if exists "Members update comments" on public.comments;
 create policy "Members update comments" on public.comments for update to authenticated
-using ((select auth.uid()) = author_id or public.is_moderator())
-with check ((select auth.uid()) = author_id or public.is_moderator());
+using (((select auth.uid()) = author_id and created_at >= now() - interval '1 hour') or public.is_moderator())
+with check (((select auth.uid()) = author_id or public.is_moderator()));
 drop policy if exists "Members delete comments" on public.comments;
 create policy "Members delete comments" on public.comments for delete to authenticated
 using ((select auth.uid()) = author_id or public.is_moderator());
@@ -465,7 +542,11 @@ using ((select auth.uid()) = user_id);
 
 drop policy if exists "Members submit reports" on public.reports;
 create policy "Members submit reports" on public.reports for insert to authenticated
-with check ((select auth.uid()) = reporter_id);
+with check (
+  (select auth.uid()) = reporter_id
+  and not exists (select 1 from public.posts where id = post_id and author_id = (select auth.uid()))
+  and not exists (select 1 from public.comments where id = comment_id and author_id = (select auth.uid()))
+);
 drop policy if exists "Moderators review reports" on public.reports;
 create policy "Moderators review reports" on public.reports for all to authenticated
 using (public.is_moderator()) with check (public.is_moderator());
