@@ -37,14 +37,14 @@ export default async function PublicProfilePage({ params, searchParams }) {
       <div className="ambient ambient-one" />
       <SiteHeader />
       <section className="profile-shell shell">
-        <header className="profile-hero glass">
+        <header className={`profile-hero glass ${profile.banner_url ? "has-banner" : ""}`}>
           {profile.banner_url && <div className="profile-banner"><Image src={profile.banner_url} alt="" fill priority sizes="1200px" /></div>}
           <div className="profile-avatar">
             {profile.avatar_url
               ? <Image src={profile.avatar_url} alt={`${profile.display_name || profile.username}'s profile`} fill priority sizes="105px" />
               : (profile.display_name || profile.username).charAt(0).toUpperCase()}
           </div>
-          <div>
+          <div className="profile-identity">
             <span className="section-label">MEMELAB CREATOR</span>
             <h1>{profile.display_name || profile.username}</h1>
             <p>@{profile.username}</p>

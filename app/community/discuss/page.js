@@ -33,7 +33,7 @@ export default async function DiscussionsPage({ searchParams }) {
         <Link className="primary-cta" href={viewer ? `/community/discuss/create?channel=${channel}` : `/auth?next=/community/discuss/create?channel=${channel}`}><Plus size={17} /> Start a discussion</Link>
       </section>
       <nav className="community-mode-nav shell glass" aria-label="Community areas">
-        <Link href="/community">Stream</Link>
+        <Link href="/community">Image feed</Link>
         <Link className="active" href="/community/discuss">Discussions</Link>
       </nav>
 
