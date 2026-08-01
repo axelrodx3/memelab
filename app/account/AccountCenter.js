@@ -442,7 +442,7 @@ export default function AccountCenter({ profile: initialProfile, settings: initi
                 <Toggle checked={settings.show_online_status} onChange={(value) => setSettings((current) => ({ ...current, show_online_status: value }))} title="Show when I’m online" description="Let other members see your live Online status. Turn this off to always appear Offline." />
               </div>
               <div className={styles.selectSetting}>
-                <div><strong>Who can message me</strong><small>This permission is ready for MemeLab’s private messaging launch.</small></div>
+                <div><strong>Who can message me</strong><small>Interactions includes accepted friends or creators you’ve exchanged comments or replies with.</small></div>
                 <select value={settings.message_permission} onChange={(event) => setSettings((current) => ({ ...current, message_permission: event.target.value }))}>
                   <option value="everyone">Everyone</option>
                   <option value="interactions">People I’ve interacted with</option>
@@ -451,7 +451,7 @@ export default function AccountCenter({ profile: initialProfile, settings: initi
               </div>
               <button className={styles.primaryButton} onClick={() => saveSettings("preferences")} disabled={busy === "preferences"}><Save size={15} /> Save preferences</button>
               <div className={styles.blockSection}>
-                <div className={styles.panelHeading}><div><span>SAFETY</span><h2>Blocked members</h2><p>Blocked members will not be able to contact you when messaging launches.</p></div><Ban size={22} /></div>
+                <div className={styles.panelHeading}><div><span>SAFETY</span><h2>Blocked members</h2><p>Blocked members cannot message you or send you friend requests. Existing friend connections are removed.</p></div><Ban size={22} /></div>
                 <form className={styles.blockForm} onSubmit={blockUser}>
                   <input name="blockedUsername" required pattern="[A-Za-z0-9_]+" placeholder="Enter a username" />
                   <button className={styles.ghostButton} disabled={busy === "block"}><UserX size={14} /> Block</button>
@@ -469,13 +469,15 @@ export default function AccountCenter({ profile: initialProfile, settings: initi
               <div className={styles.panelHeading}><div><span>NOTIFICATIONS</span><h2>Stay in the loop</h2><p>Set the moments you want MemeLab to notify you about.</p></div></div>
               <div className={styles.deliveryNotice}>
                 <Bell size={17} />
-                <div><strong>Preferences save now · delivery is coming next</strong><p>Your choices are stored to your account. Email delivery is not active yet, and MemeLab will honor these settings when notifications launch.</p></div>
-                <span>COMING SOON</span>
+                <div><strong>In-app alerts are live</strong><p>These choices control your MemeLab notification center. Email delivery remains optional and will arrive later.</p></div>
+                <span>LIVE</span>
               </div>
               <div className={styles.toggleList}>
                 <Toggle checked={settings.notification_email} onChange={(value) => setSettings((current) => ({ ...current, notification_email: value }))} title="Email notifications" description="Master switch for optional MemeLab emails." />
                 <Toggle checked={settings.notification_replies} onChange={(value) => setSettings((current) => ({ ...current, notification_replies: value }))} title="Replies and comments" description="Hear when someone joins your conversation." />
                 <Toggle checked={settings.notification_votes} onChange={(value) => setSettings((current) => ({ ...current, notification_votes: value }))} title="Vote milestones" description="Celebrate meaningful traction on your posts." />
+                <Toggle checked={settings.notification_social !== false} onChange={(value) => setSettings((current) => ({ ...current, notification_social: value }))} title="Friend activity" description="See friend requests and accepted connections in your notification center." />
+                <Toggle checked={settings.notification_messages !== false} onChange={(value) => setSettings((current) => ({ ...current, notification_messages: value }))} title="Private messages" description="See a notification when someone sends you a direct message." />
               </div>
               <button className={styles.primaryButton} onClick={() => saveSettings("notifications")} disabled={busy === "notifications"}><Save size={15} /> Save notifications</button>
             </section>

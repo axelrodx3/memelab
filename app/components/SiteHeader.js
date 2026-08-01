@@ -1,6 +1,6 @@
 "use client";
 
-import { FolderKanban, Menu, Plus, X } from "lucide-react";
+import { FolderKanban, Menu, MessageCircle, Plus, Users, X } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import AuthControls from "./AuthControls";
@@ -35,6 +35,12 @@ export default function SiteHeader() {
 
       <div className="nav-actions">
         <NotificationBell />
+        <Link className="icon-button" href="/messages" aria-label="Private messages">
+          <MessageCircle size={18} />
+        </Link>
+        <Link className="icon-button" href="/friends" aria-label="Friends">
+          <Users size={18} />
+        </Link>
         <Link className="icon-button" href="/projects" aria-label="Your projects">
           <FolderKanban size={18} />
         </Link>
@@ -58,6 +64,8 @@ export default function SiteHeader() {
           <Link href="/community" onClick={() => setMobileOpen(false)}>Community</Link>
           <Link href="/studio" onClick={() => setMobileOpen(false)}>MemeLab Studio</Link>
           <Link href="/projects" onClick={() => setMobileOpen(false)}>Projects</Link>
+          <Link href="/friends" onClick={() => setMobileOpen(false)}>Friends</Link>
+          <Link href="/messages" onClick={() => setMobileOpen(false)}>Messages</Link>
           <Link href="/templates?category=Favorites" onClick={() => setMobileOpen(false)}>Favorites</Link>
           <AuthControls compact />
         </div>

@@ -7,7 +7,7 @@ export async function GET() {
   const userId = claimsData?.claims?.sub;
   if (error || !userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const [profile, settings, projects, favorites, posts, comments, postVotes, commentVotes, reports, notifications] = await Promise.all([
+  const [profile, settings, projects, favorites, posts, comments, postVotes, commentVotes, reports, notifications, friendships, conversations] = await Promise.all([
     supabase.from("profiles").select("*").eq("id", userId).maybeSingle(),
     supabase.from("account_settings").select("*").eq("user_id", userId).maybeSingle(),
     supabase.from("projects").select("*").eq("user_id", userId).order("updated_at"),
@@ -17,8 +17,15 @@ export async function GET() {
     supabase.from("post_votes").select("*").eq("user_id", userId).order("created_at"),
     supabase.from("comment_votes").select("*").eq("user_id", userId).order("created_at"),
     supabase.from("reports").select("*").eq("reporter_id", userId).order("created_at"),
-    supabase.from("notifications").select("*").eq("user_id", userId).order("created_at")
+    supabase.from("notifications").select("*").eq("user_id", userId).order("created_at"),
+    supabase.from("friendships").select("*").or(`member_one_id.eq.${userId},member_two_id.eq.${userId}`).order("created_at"),
+    supabase.from("direct_conversations").select("*").or(`member_one_id.eq.${userId},member_two_id.eq.${userId}`).order("created_at")
   ]);
+
+  const conversationIds = (conversations.data || []).map((conversation) => conversation.id);
+  const { data: messages } = conversationIds.length
+    ? await supabase.from("direct_messages").select("*").in("conversation_id", conversationIds).order("created_at")
+    : { data: [] };
 
   const archive = {
     exported_at: new Date().toISOString(),
@@ -32,7 +39,10 @@ export async function GET() {
     post_votes: postVotes.data || [],
     comment_votes: commentVotes.data || [],
     reports: reports.data || [],
-    notifications: notifications.data || []
+    notifications: notifications.data || [],
+    friendships: friendships.data || [],
+    direct_conversations: conversations.data || [],
+    direct_messages: messages || []
   };
 
   return new NextResponse(JSON.stringify(archive, null, 2), {
