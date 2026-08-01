@@ -911,10 +911,18 @@ textarea { font: inherit; }
 .message-conversation { min-height: 70px; padding: 10px; border: 1px solid transparent; border-radius: 12px; display: grid; grid-template-columns: 42px minmax(0,1fr) auto; align-items: center; gap: 9px; color: #858792; }
 .message-conversation:hover, .message-conversation.active { border-color: rgba(167,139,250,.17); background: rgba(139,109,248,.08); }
 .message-conversation .message-avatar { width: 42px; height: 42px; border-radius: 12px; font-size: 13px; }
+.message-avatar-link { border-radius: 14px; display: block; line-height: 0; }
+.message-avatar-link:hover .message-avatar { border-color: rgba(191,172,255,.76); box-shadow: 0 0 0 3px rgba(139,109,248,.11), 0 8px 20px rgba(0,0,0,.18); }
 .message-conversation > span { min-width: 0; display: grid; gap: 4px; }
+.message-member-link, .message-conversation-preview, .message-conversation-open { min-width: 0; color: inherit; text-decoration: none; }
+.message-member-link, .message-conversation-preview { display: block; }
+.message-member-link:hover strong { color: #c9b9ff; }
+.message-conversation-preview:hover small { color: #b0a5cc; }
 .message-conversation strong { overflow: hidden; color: #d9d7df; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
 .message-conversation small { overflow: hidden; color: #6f717b; font-size: 8px; text-overflow: ellipsis; white-space: nowrap; }
-.message-conversation time { align-self: start; padding-top: 3px; color: #5f616a; font-size: 7px; white-space: nowrap; }
+.message-conversation-open { align-self: start; padding-top: 3px; }
+.message-conversation time { color: #5f616a; font-size: 7px; white-space: nowrap; }
+.message-conversation-open:hover time { color: #b0a5cc; }
 .messages-empty-list { min-height: 180px; display: grid; place-content: center; justify-items: center; gap: 9px; color: #767884; font-size: 9px; text-align: center; }
 .messages-pane { min-width: 0; min-height: 620px; display: flex; flex-direction: column; background: rgba(5,6,9,.12); }
 .messages-start { flex: 1; padding: 50px 26px; display: grid; place-content: center; justify-items: center; gap: 10px; color: #9d87ef; text-align: center; }
@@ -923,9 +931,11 @@ textarea { font: inherit; }
 .messages-start a { height: 36px; padding: 0 12px; border: 1px solid rgba(167,139,250,.24); border-radius: 9px; display: inline-flex; align-items: center; color: #cbbcff; font-size: 9px; font-weight: 750; }
 .message-thread-header { min-height: 67px; padding: 0 20px; border-bottom: 1px solid rgba(255,255,255,.065); display: flex; align-items: center; gap: 10px; }
 .message-thread-header .message-avatar.large { width: 38px; height: 38px; border-radius: 11px; font-size: 12px; }
-.message-thread-header > div { min-width: 0; display: grid; gap: 3px; }
+.message-thread-member { min-width: 0; display: grid; gap: 3px; color: inherit; text-decoration: none; }
 .message-thread-header strong { color: #e4e2e8; font-size: 11px; }
 .message-thread-header span { color: #73757e; font-size: 8px; }
+.message-thread-member:hover strong { color: #c9b9ff; }
+.message-thread-member:hover span { color: #a99bc8; }
 .message-thread-header .presence-status { margin-left: auto; }
 .message-back { width: 30px; height: 30px; margin-left: -7px; border-radius: 8px; display: grid; place-items: center; color: #999ba5; }
 .message-back:hover { background: rgba(255,255,255,.06); color: #dddbe3; }
