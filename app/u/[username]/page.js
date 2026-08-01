@@ -39,22 +39,24 @@ export default async function PublicProfilePage({ params, searchParams }) {
       <section className="profile-shell shell">
         <header className={`profile-hero glass ${profile.banner_url ? "has-banner" : ""}`}>
           {profile.banner_url && <div className="profile-banner"><Image src={profile.banner_url} alt="" fill priority sizes="1200px" /></div>}
-          <div className="profile-avatar">
-            {profile.avatar_url
-              ? <Image src={profile.avatar_url} alt={`${profile.display_name || profile.username}'s profile`} fill priority sizes="105px" />
-              : (profile.display_name || profile.username).charAt(0).toUpperCase()}
-          </div>
-          <div className="profile-identity">
-            <span className="section-label">MEMELAB CREATOR</span>
-            <h1>{profile.display_name || profile.username}</h1>
-            <p>@{profile.username}</p>
-            {!profile.isPrivate && profile.bio && <div className="profile-bio">{profile.bio}</div>}
-          </div>
-          <div className="profile-stats">
-            <PresenceStatus userId={profile.id} />
-            <span><TrendingUp size={16} /><strong>{profile.karma}</strong> karma</span>
-            {!profile.isPrivate && profile.show_activity && <span><ImageIcon size={16} /><strong>{profile.posts.length}</strong> posts</span>}
-            <span><CalendarDays size={16} />Joined {formatRelativeTime(profile.created_at)}</span>
+          <div className="profile-summary">
+            <div className="profile-avatar">
+              {profile.avatar_url
+                ? <Image src={profile.avatar_url} alt={`${profile.display_name || profile.username}'s profile`} fill priority sizes="105px" />
+                : (profile.display_name || profile.username).charAt(0).toUpperCase()}
+            </div>
+            <div className="profile-identity">
+              <span className="section-label">MEMELAB CREATOR</span>
+              <h1>{profile.display_name || profile.username}</h1>
+              <p>@{profile.username}</p>
+              {!profile.isPrivate && profile.bio && <div className="profile-bio">{profile.bio}</div>}
+            </div>
+            <div className="profile-stats">
+              <PresenceStatus userId={profile.id} />
+              <span><TrendingUp size={16} /><strong>{profile.karma}</strong> karma</span>
+              {!profile.isPrivate && profile.show_activity && <span><ImageIcon size={16} /><strong>{profile.posts.length}</strong> posts</span>}
+              <span><CalendarDays size={16} />Joined {formatRelativeTime(profile.created_at)}</span>
+            </div>
           </div>
         </header>
 
