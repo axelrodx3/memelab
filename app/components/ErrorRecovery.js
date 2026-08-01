@@ -14,6 +14,14 @@ export default function ErrorRecovery({ error, reset, global = false }) {
     });
   }, [error, global]);
 
+  const retry = () => {
+    if (typeof window !== "undefined") {
+      window.location.reload();
+      return;
+    }
+    reset?.();
+  };
+
   return (
     <main className={`${styles.page} ${global ? styles.globalPage : ""}`}>
       <div className={styles.ambientOne} aria-hidden="true" />
@@ -26,7 +34,7 @@ export default function ErrorRecovery({ error, reset, global = false }) {
           This page ran into a temporary issue. Your account and work are safe—try again, or head back to a fresh start.
         </p>
         <div className={styles.actions}>
-          <button className={styles.primaryAction} type="button" onClick={reset}>
+          <button className={styles.primaryAction} type="button" onClick={retry}>
             <RefreshCw size={15} /> Try again
           </button>
           <a className={styles.secondaryAction} href="/">
