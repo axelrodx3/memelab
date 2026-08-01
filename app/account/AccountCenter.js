@@ -2,11 +2,12 @@
 
 import {
   Ban, Bell, Check, ChevronRight, CircleUserRound, Download, Eye, EyeOff,
-  Clock3, ImagePlus, KeyRound, Laptop, LogOut, RotateCcw, Save, ShieldCheck,
+  Clock3, ImagePlus, Info, KeyRound, Laptop, LogOut, RotateCcw, Save, ShieldCheck,
   Trash2, UploadCloud, UserRound, UserX
 } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
+import PresenceStatus from "../components/PresenceStatus";
 import { createClient } from "../../lib/supabase/client";
 import styles from "./AccountCenter.module.css";
 
@@ -49,6 +50,30 @@ function formatCountdown(milliseconds) {
 
 function FieldMessage({ value }) {
   return value ? <p className={styles.message} role="status">{value}</p> : null;
+}
+
+function ImageGuide({ label, children, placement = "below" }) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <span
+      className={`${styles.imageGuide} ${placement === "above" ? styles.imageGuideAbove : ""}`}
+      onMouseEnter={() => setOpen(true)}
+      onMouseLeave={() => setOpen(false)}
+    >
+      <button
+        type="button"
+        className={styles.imageGuideButton}
+        aria-label={label}
+        aria-expanded={open}
+        onClick={() => setOpen((current) => !current)}
+        onBlur={() => setOpen(false)}
+      >
+        <Info size={14} />
+      </button>
+      {open && <span className={styles.imageGuidePanel} role="tooltip">{children}</span>}
+    </span>
+  );
 }
 
 function Toggle({ checked, onChange, title, description }) {
@@ -311,7 +336,10 @@ export default function AccountCenter({ profile: initialProfile, settings: initi
       <header className={`${styles.hero} glass`}>
         <div className={styles.banner}>
           {profile.banner_url && <Image src={profile.banner_url} alt="" fill priority sizes="1200px" />}
-          <button type="button" onClick={() => bannerInput.current?.click()}><ImagePlus size={15} /> Change banner</button>
+          <div className={styles.bannerActions}>
+            <button type="button" onClick={() => bannerInput.current?.click()}><ImagePlus size={15} /> Change banner</button>
+            <ImageGuide label="Banner image recommendations" placement="above">Best results: 1600 × 500 px (3.2:1). Keep important details near the middle. PNG, JPG or WEBP · 5MB max.</ImageGuide>
+          </div>
           <input ref={bannerInput} hidden type="file" accept="image/png,image/jpeg,image/webp" onChange={(event) => uploadImage("banner", event.target.files?.[0])} />
         </div>
         <div className={styles.identity}>
@@ -321,9 +349,9 @@ export default function AccountCenter({ profile: initialProfile, settings: initi
             <h1>{profile.display_name || profile.username}</h1>
             <p>@{profile.username} · {profile.karma} karma</p>
           </div>
-          <div className={profile.account_status === "active" && settings.show_online_status ? styles.active : styles.inactive}>
-            <i /> {profile.account_status !== "active" ? "Deactivated" : settings.show_online_status ? "Online" : "Offline"}
-          </div>
+          {profile.account_status === "active"
+            ? <PresenceStatus userId={profile.id} />
+            : <div className={styles.inactive}><i /> Deactivated</div>}
         </div>
       </header>
 
@@ -363,7 +391,7 @@ export default function AccountCenter({ profile: initialProfile, settings: initi
           {tab === "profile" && (
             <>
               <section className={`${styles.panel} glass`}>
-                <div className={styles.panelHeading}><div><span>IDENTITY</span><h2>Profile image</h2><p>Use your default silhouette or upload something personal.</p></div></div>
+                <div className={styles.panelHeading}><div><span>IDENTITY</span><h2>Profile image</h2><div className={styles.hintLine}><p>Use your default silhouette or upload something personal.</p><ImageGuide label="Profile image recommendations">Best results: a square 800 × 800 px image (400 × 400 px minimum). PNG, JPG or WEBP · 5MB max.</ImageGuide></div></div></div>
                 <div className={styles.avatarRow}>
                   <div className={styles.largeAvatar}><Image src={avatarUrl} alt="Current profile" fill sizes="128px" /></div>
                   <div className={styles.avatarActions}>

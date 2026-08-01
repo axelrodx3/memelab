@@ -28,7 +28,7 @@ export default async function CommunityPage({ searchParams }) {
       <section className="community-hero shell">
         <div>
           <span className="section-label">THE MEMELAB COMMUNITY</span>
-          <h1>The internet’s new<br /><span>creative feed.</span></h1>
+          <h1>The internet’s new<br /><span>creative Stream.</span></h1>
           <p>Post anything worth seeing. Vote on what rises. Join the conversation.</p>
         </div>
         <Link className="primary-cta" href={viewer ? "/community/create" : "/auth?next=/community/create"}>
@@ -37,7 +37,7 @@ export default async function CommunityPage({ searchParams }) {
       </section>
 
       <nav className="community-mode-nav shell glass" aria-label="Community areas">
-        <Link className="active" href="/community">Image feed</Link>
+        <Link className="active" href="/community">Stream</Link>
         <Link href="/community/discuss">Discussions</Link>
       </nav>
 

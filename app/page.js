@@ -65,11 +65,11 @@ export default function Home() {
 
       <section className="home-community shell glass">
         <div className="home-community-copy">
-          <span className="section-label">THE COMMUNITY FEED</span>
+          <span className="section-label">THE MEMELAB STREAM</span>
           <h2>Post it. Rank it.<br /><span>Talk about it.</span></h2>
           <p>A living image community where memes, art and internet culture rise through real votes and conversation.</p>
           <div className="home-community-actions">
-            <Link className="primary-cta" href="/community">Explore the feed <ArrowRight size={17} /></Link>
+            <Link className="primary-cta" href="/community">Explore the Stream <ArrowRight size={17} /></Link>
             <Link className="secondary-cta" href="/community/create">Create a post</Link>
           </div>
         </div>

@@ -7,6 +7,7 @@ import { notFound } from "next/navigation";
 import SiteHeader from "../../components/SiteHeader";
 import PresenceStatus from "../../components/PresenceStatus";
 import { getPublicProfile } from "../../../lib/community";
+import { formatRelativeTime } from "../../../lib/relative-time";
 import { templateHref } from "../../../lib/template-utils";
 
 export const dynamic = "force-dynamic";
@@ -36,24 +37,26 @@ export default async function PublicProfilePage({ params, searchParams }) {
       <div className="ambient ambient-one" />
       <SiteHeader />
       <section className="profile-shell shell">
-        <header className="profile-hero glass">
+        <header className={`profile-hero glass ${profile.banner_url ? "has-banner" : ""}`}>
           {profile.banner_url && <div className="profile-banner"><Image src={profile.banner_url} alt="" fill priority sizes="1200px" /></div>}
-          <div className="profile-avatar">
-            {profile.avatar_url
-              ? <Image src={profile.avatar_url} alt={`${profile.display_name || profile.username}'s profile`} fill priority sizes="105px" />
-              : (profile.display_name || profile.username).charAt(0).toUpperCase()}
-          </div>
-          <div>
-            <span className="section-label">MEMELAB CREATOR</span>
-            <h1>{profile.display_name || profile.username}</h1>
-            <p>@{profile.username}</p>
-            {!profile.isPrivate && profile.bio && <div className="profile-bio">{profile.bio}</div>}
-          </div>
-          <div className="profile-stats">
-            <PresenceStatus userId={profile.id} />
-            <span><TrendingUp size={16} /><strong>{profile.karma}</strong> karma</span>
-            {!profile.isPrivate && profile.show_activity && <span><ImageIcon size={16} /><strong>{profile.posts.length}</strong> posts</span>}
-            <span><CalendarDays size={16} />Joined {profile.created_at?.slice(0, 10)}</span>
+          <div className="profile-summary">
+            <div className="profile-avatar">
+              {profile.avatar_url
+                ? <Image src={profile.avatar_url} alt={`${profile.display_name || profile.username}'s profile`} fill priority sizes="108px" />
+                : (profile.display_name || profile.username).charAt(0).toUpperCase()}
+            </div>
+            <div className="profile-identity">
+              <span className="section-label">MEMELAB CREATOR</span>
+              <h1>{profile.display_name || profile.username}</h1>
+              <p>@{profile.username}</p>
+              {!profile.isPrivate && profile.bio && <div className="profile-bio">{profile.bio}</div>}
+            </div>
+            <div className="profile-stats">
+              <PresenceStatus userId={profile.id} />
+              <span><TrendingUp size={16} /><strong>{profile.karma}</strong> karma</span>
+              {!profile.isPrivate && profile.show_activity && <span><ImageIcon size={16} /><strong>{profile.posts.length}</strong> posts</span>}
+              <span><CalendarDays size={16} />Joined {formatRelativeTime(profile.created_at)}</span>
+            </div>
           </div>
         </header>
 
@@ -91,7 +94,7 @@ export default async function PublicProfilePage({ params, searchParams }) {
               <div className="profile-comment-list">
                 {profile.comments.map((comment) => (
                   <Link className="profile-comment-card glass" href={`/community/${comment.post?.id}`} key={comment.id}>
-                    <div><MessageCircle size={17} /><span>Commented on <strong>{comment.post?.title || "a community post"}</strong></span><time>{comment.created_at?.slice(0, 10)}</time></div>
+                    <div><MessageCircle size={17} /><span>Commented on <strong>{comment.post?.title || "a community post"}</strong></span><time>{formatRelativeTime(comment.created_at)}</time></div>
                     <p>{comment.body}</p>
                     <span><TrendingUp size={13} /> {comment.score} score</span>
                   </Link>

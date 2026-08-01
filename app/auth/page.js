@@ -22,7 +22,7 @@ export default async function AuthPage({ searchParams }) {
         <div className="auth-intro">
           <span className="section-label">MEMELAB COMMUNITY</span>
           <h1>Make something.<br /><span>Become known for it.</span></h1>
-          <p>Post images, join conversations and help decide what rises through the feed.</p>
+          <p>Post images, join conversations and help decide what rises through the Stream.</p>
           <div className="auth-benefits">
             <span>Post images and memes</span>
             <span>Vote and comment</span>
