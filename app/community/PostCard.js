@@ -4,6 +4,7 @@ import { AlertTriangle, ArrowBigDown, ArrowBigUp, Eye, Flag, MessageCircle, More
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
+import RelativeTime from "../components/RelativeTime";
 import { createClient } from "../../lib/supabase/client";
 
 function authorLabel(post) {
@@ -60,15 +61,17 @@ export default function PostCard({ post, viewerId, showMature = false, detail = 
   };
 
   const profileHref = post.author?.username ? `/u/${post.author.username}` : null;
-  const dateLabel = post.createdAt?.slice(0, 10) || "";
+  const avatarUrl = post.author?.avatar_url || null;
 
   return (
     <article className={`community-post glass ${detail ? "post-detail-card" : ""}`}>
       <header className="post-meta">
-        <div className="post-avatar">{authorLabel(post).charAt(0).toUpperCase()}</div>
+        <div className={`post-avatar ${avatarUrl ? "has-image" : ""}`}>
+          {avatarUrl ? <Image src={avatarUrl} alt="" fill sizes="37px" /> : authorLabel(post).charAt(0).toUpperCase()}
+        </div>
         <div>
           {profileHref ? <Link href={profileHref}>{authorLabel(post)}</Link> : <strong>{authorLabel(post)}</strong>}
-          <span>{dateLabel}{post.author?.karma ? ` · ${post.author.karma} karma` : ""}</span>
+          <span><RelativeTime value={post.createdAt} />{post.author?.karma ? ` · ${post.author.karma} karma` : ""}</span>
         </div>
         <button type="button" className="post-more" onClick={() => setReportOpen((current) => !current)} aria-label="Post options">
           <MoreHorizontal size={18} />

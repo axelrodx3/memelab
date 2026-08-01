@@ -3,7 +3,8 @@
 .banner { height: 178px; position: relative; overflow: hidden; background: radial-gradient(circle at 78% 0, rgba(180,157,255,.35), transparent 38%), linear-gradient(120deg, #11101a, #171327 55%, #0c0d12); }
 .banner::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 40%, rgba(7,8,11,.78)); }
 .banner img { object-fit: cover; }
-.banner button { position: absolute; z-index: 2; right: 20px; bottom: 17px; height: 34px; padding: 0 11px; border: 1px solid rgba(255,255,255,.14); border-radius: 9px; background: rgba(7,8,12,.58); backdrop-filter: blur(14px); color: #d8d6e2; display: flex; align-items: center; gap: 7px; font-size: 10px; cursor: pointer; }
+.bannerActions { position: absolute; z-index: 2; right: 20px; bottom: 17px; display: flex; align-items: center; gap: 7px; }
+.bannerActions > button { height: 34px; padding: 0 11px; border: 1px solid rgba(255,255,255,.14); border-radius: 9px; background: rgba(7,8,12,.58); backdrop-filter: blur(14px); color: #d8d6e2; display: flex; align-items: center; gap: 7px; font-size: 10px; cursor: pointer; }
 .identity { min-height: 125px; padding: 0 30px 24px; display: grid; grid-template-columns: 112px 1fr auto; align-items: end; gap: 22px; position: relative; }
 .avatar, .largeAvatar { position: relative; overflow: hidden; background: #161721; box-shadow: 0 15px 40px rgba(0,0,0,.35); }
 .avatar { width: 112px; height: 112px; margin-top: -38px; border: 5px solid #101116; border-radius: 30px; }
@@ -34,6 +35,11 @@
 .panelHeading { margin-bottom: 23px; display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; color: #8f7be1; }
 .panelHeading h2 { margin: 7px 0 6px; color: #eceaf1; font: 700 24px/1.15 var(--font-manrope), sans-serif; letter-spacing: -.035em; }
 .panelHeading p { margin: 0; color: #747680; font-size: 10px; line-height: 1.55; }
+.hintLine { display: flex; align-items: center; gap: 7px; }
+.imageGuide { position: relative; display: inline-flex; flex: 0 0 auto; }
+.imageGuideButton { width: 18px; height: 18px; padding: 0; border: 1px solid rgba(174,153,246,.34); border-radius: 999px; background: rgba(133,102,237,.11); color: #b9a8f7; display: grid; place-items: center; cursor: help; }
+.imageGuideButton:hover, .imageGuideButton:focus-visible { border-color: rgba(207,194,255,.76); color: #ede9ff; outline: none; }
+.imageGuidePanel { width: 240px; padding: 10px 11px; border: 1px solid rgba(187,167,255,.26); border-radius: 10px; position: absolute; z-index: 8; top: calc(100% + 8px); right: 0; background: rgba(18,17,27,.96); box-shadow: 0 16px 36px rgba(0,0,0,.32); color: #c5c2d0; font-size: 9px; font-weight: 500; line-height: 1.5; text-transform: none; letter-spacing: normal; }
 .avatarRow { display: flex; align-items: center; gap: 20px; }
 .largeAvatar { width: 128px; height: 128px; flex: 0 0 auto; border: 1px solid rgba(255,255,255,.09); border-radius: 28px; }
 .avatarActions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
@@ -120,6 +126,7 @@
 @media (max-width: 600px) {
   .shell { padding: 42px 0 80px; }
   .banner { height: 130px; }
+  .bannerActions { right: 13px; bottom: 12px; }
   .identity { padding: 0 19px 20px; grid-template-columns: 82px 1fr; gap: 15px; }
   .avatar { width: 82px; height: 82px; border-radius: 23px; }
   .identity h1 { font-size: 25px; }

@@ -460,7 +460,9 @@ textarea { font: inherit; }
 
 .community-post { border-radius: 18px; overflow: hidden; }
 .post-meta { min-height: 66px; padding: 13px 17px; display: flex; align-items: center; gap: 11px; }
-.post-avatar { width: 37px; height: 37px; flex: 0 0 auto; border-radius: 10px; display: grid; place-items: center; background: linear-gradient(145deg, #9f86ff, #6041d2); color: #111018; font-size: 13px; font-weight: 900; }
+.post-avatar { width: 37px; height: 37px; flex: 0 0 auto; border-radius: 10px; display: grid; place-items: center; position: relative; overflow: hidden; background: linear-gradient(145deg, #9f86ff, #6041d2); color: #111018; font-size: 13px; font-weight: 900; }
+.post-avatar.has-image { border: 1px solid rgba(255,255,255,.14); background: #161721; }
+.post-avatar img { object-fit: cover; }
 .post-meta > div:nth-child(2) { display: grid; gap: 3px; }
 .post-meta a, .post-meta strong { color: #dedde4; font-size: 11px; font-weight: 750; }
 .post-meta span { color: #666872; font-size: 9px; }
@@ -502,7 +504,9 @@ textarea { font: inherit; }
 .comment-composer > span { align-self: center; color: #b5a6e8; font-size: 10px; }
 .comment-list { display: grid; }
 .comment-card { padding: 17px 19px; display: grid; grid-template-columns: 34px 1fr; gap: 11px; border-bottom: 1px solid rgba(255,255,255,.06); }
-.comment-avatar { width: 34px; height: 34px; display: grid; place-items: center; border-radius: 9px; background: rgba(149,118,255,.15); color: #bba9ff; font-weight: 800; font-size: 11px; }
+.comment-avatar { width: 34px; height: 34px; display: grid; place-items: center; position: relative; overflow: hidden; border-radius: 9px; background: rgba(149,118,255,.15); color: #bba9ff; font-weight: 800; font-size: 11px; }
+.comment-avatar.has-image { border: 1px solid rgba(255,255,255,.12); background: #161721; }
+.comment-avatar img { object-fit: cover; }
 .comment-main { min-width: 0; }
 .comment-main header { display: flex; align-items: center; gap: 8px; }
 .comment-main header a, .comment-main header strong { color: #d3d2d9; font-size: 10px; }
@@ -538,8 +542,8 @@ textarea { font: inherit; }
 .profile-shell { padding: 76px 0 120px; position: relative; z-index: 2; }
 .profile-hero { min-height: 230px; padding: 35px; border-radius: 23px; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 25px; position: relative; overflow: hidden; }
 .profile-hero > *:not(.profile-banner) { position: relative; z-index: 1; }
-.profile-banner { position: absolute; inset: 0; opacity: .28; }
-.profile-banner::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(8,9,12,.92), rgba(8,9,12,.68)); }
+.profile-banner { position: absolute; inset: 0; }
+.profile-banner::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(8,9,12,.74) 0%, rgba(8,9,12,.42) 39%, rgba(8,9,12,.08) 76%), linear-gradient(0deg, rgba(8,9,12,.42), transparent 62%); }
 .profile-banner img { object-fit: cover; }
 .profile-avatar { width: 105px; height: 105px; border-radius: 28px; display: grid; place-items: center; overflow: hidden; position: relative; background: linear-gradient(145deg, #a991ff, #5d3ecb); color: #14111d; font: 900 40px/1 var(--font-manrope), sans-serif; }
 .profile-avatar img { object-fit: cover; }

@@ -1,9 +1,11 @@
 "use client";
 
 import { ArrowBigDown, ArrowBigUp, MessageCircle, Send } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import RelativeTime from "../../components/RelativeTime";
 import { createClient } from "../../../lib/supabase/client";
 
 function Comment({ comment, viewer }) {
@@ -31,13 +33,16 @@ function Comment({ comment, viewer }) {
   };
 
   const author = comment.author?.display_name || comment.author?.username || "Deleted member";
+  const avatarUrl = comment.author?.avatar_url || null;
   return (
     <article className="comment-card">
-      <div className="comment-avatar">{author.charAt(0).toUpperCase()}</div>
+      <div className={`comment-avatar ${avatarUrl ? "has-image" : ""}`}>
+        {avatarUrl ? <Image src={avatarUrl} alt="" fill sizes="34px" /> : author.charAt(0).toUpperCase()}
+      </div>
       <div className="comment-main">
         <header>
           {comment.author?.username ? <Link href={`/u/${comment.author.username}`}>{author}</Link> : <strong>{author}</strong>}
-          <span>{comment.created_at?.slice(0, 10)}</span>
+          <span><RelativeTime value={comment.created_at} /></span>
         </header>
         <p>{comment.body}</p>
         <div className="comment-actions">
