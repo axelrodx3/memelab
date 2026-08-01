@@ -1,6 +1,7 @@
 import "./globals.css";
 import { DM_Sans, Manrope } from "next/font/google";
 import PresenceBeacon from "./components/PresenceBeacon";
+import ClientErrorReporter from "./components/ClientErrorReporter";
 
 const dmSans = DM_Sans({
   subsets: ["latin"],
@@ -20,7 +21,11 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${dmSans.variable} ${manrope.variable}`}>
-      <body><PresenceBeacon />{children}</body>
+      <body>
+        <ClientErrorReporter />
+        <PresenceBeacon />
+        {children}
+      </body>
     </html>
   );
 }
