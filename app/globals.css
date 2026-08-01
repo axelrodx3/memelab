@@ -502,6 +502,10 @@ textarea { font: inherit; }
 .comments-section > header { min-height: 60px; padding: 0 19px; display: flex; align-items: center; gap: 9px; border-bottom: 1px solid var(--border); color: #a991ff; }
 .comments-section > header h2 { margin: 0; color: #e3e2e8; font-size: 13px; }
 .comment-composer { padding: 17px; display: grid; grid-template-columns: 1fr auto; gap: 9px; border-bottom: 1px solid var(--border); }
+.reply-context { min-height: 30px; padding: 0 9px 0 10px; grid-column: 1 / -1; border: 1px solid rgba(167,139,250,.17); border-radius: 8px; display: flex; align-items: center; justify-content: space-between; background: rgba(139,109,248,.07); color: #9d8aea; font-size: 9px; }
+.reply-context span { display: flex; align-items: center; gap: 6px; }
+.reply-context strong { color: #d9d2f4; }
+.reply-context button { width: 25px; height: 25px; padding: 0; grid-column: auto; border: 0; background: transparent; color: #9082b9; display: grid; place-items: center; }
 .comment-composer textarea { grid-column: 1 / -1; resize: vertical; border: 1px solid var(--border); border-radius: 10px; background: rgba(3,4,7,.37); color: #ebebef; padding: 11px; outline: 0; }
 .comment-composer button { height: 35px; padding: 0 13px; grid-column: 2; border: 0; border-radius: 9px; background: #e8e3fa; color: #15121b; display: flex; align-items: center; gap: 7px; font-size: 10px; font-weight: 800; cursor: pointer; }
 .comment-composer > span { align-self: center; color: #b5a6e8; font-size: 10px; }
@@ -520,6 +524,11 @@ textarea { font: inherit; }
 .comment-actions button.active { color: #ac97ff; }
 .comment-actions button.active.down { color: #ff8a9d; }
 .comment-actions strong { min-width: 24px; text-align: center; font-size: 9px; }
+.comment-reply-button { width: auto!important; margin-left: 6px; padding: 0 7px!important; display: flex!important; align-items: center!important; gap: 5px!important; color: #85808f!important; font-size: 8px!important; }
+.comment-reply-button:hover { color: #b9a7fb!important; }
+.comment-replies { margin-top: 10px; border-left: 1px solid rgba(167,139,250,.17); }
+.comment-replies .comment-card { padding-top: 13px; padding-bottom: 0; border-bottom: 0; }
+.comment-reply { padding-left: 15px; }
 .no-comments { padding: 25px; text-align: center; color: #696b75; font-size: 11px; }
 
 .create-post-shell { width: min(calc(100% - 48px), 900px); padding: 74px 0 120px; position: relative; z-index: 2; }
@@ -742,8 +751,8 @@ textarea { font: inherit; }
 .notification-panel > div { max-height: 370px; overflow-y: auto; display: grid; gap: 4px; }
 .notification-panel a { min-height: 58px; padding: 10px; border-radius: 10px; display: grid; grid-template-columns: auto 1fr; gap: 9px; color: #92949e; font-size: 9px; line-height: 1.45; }
 .notification-panel a:hover, .notification-panel a.unread { background: rgba(139,109,248,.08); }
-.notification-panel a > i { width: 6px; height: 6px; margin-top: 5px; border-radius: 50%; background: transparent; }
-.notification-panel a.unread > i { background: #a58cf6; box-shadow: 0 0 8px #8d72e8; }
+.notification-panel a > i { width: 25px; height: 25px; margin-top: 1px; border: 1px solid rgba(167,139,250,.13); border-radius: 8px; display: grid; place-items: center; background: rgba(139,109,248,.06); color: #8375af; font-style: normal; }
+.notification-panel a.unread > i { border-color: rgba(180,156,255,.25); background: rgba(139,109,248,.15); color: #b19cf3; box-shadow: 0 0 12px rgba(141,114,232,.12); }
 .notification-panel a span { display: block; }
 .notification-panel a strong { color: #d8d5e0; }
 .notification-panel a small { margin-top: 4px; display: block; color: #61636d; font-size: 7px; }
