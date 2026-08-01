@@ -4,7 +4,7 @@ import FriendsCenter from "./FriendsCenter";
 import { getFriendsForMember } from "../../lib/social";
 import { getViewer } from "../../lib/supabase/server";
 
-export const metadata = { title: "Friends — MemeLab" };
+export const metadata = { title: "Friends | MemeLab" };
 export const dynamic = "force-dynamic";
 
 export default async function FriendsPage() {

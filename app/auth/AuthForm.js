@@ -89,7 +89,7 @@ export default function AuthForm({ nextPath }) {
   const showAuthError = (error) => {
     const errorMessage = error.message.toLowerCase();
     if (errorMessage.includes("rate limit")) {
-      setMessage("Email sending is temporarily limited. Please wait before requesting another message, or try logging in—your earlier link may have already verified the account.");
+      setMessage("Email sending is temporarily limited. Please wait before requesting another message, or try logging in. Your earlier link may have already verified the account.");
       return;
     }
     if (errorMessage.includes("already registered") || error.code === "user_already_exists") {
@@ -210,8 +210,8 @@ export default function AuthForm({ nextPath }) {
               <small id="username-status" className={`username-status ${usernameStatus}`}>
                 {usernameStatus === "checking" && "Checking availability…"}
                 {usernameStatus === "available" && "Username available"}
-                {usernameStatus === "taken" && "Username taken — try a different one"}
-                {usernameStatus === "invalid" && "Use 3–20 letters, numbers, or underscores"}
+                {usernameStatus === "taken" && "Username taken. Try a different one"}
+                {usernameStatus === "invalid" && "Use 3 to 20 letters, numbers, or underscores"}
                 {usernameStatus === "error" && "Couldn’t check availability yet"}
               </small>
             </label>

@@ -31,7 +31,7 @@ export default function ErrorRecovery({ error, reset, global = false }) {
         <p className={styles.eyebrow}>MEMELAB SYSTEM NOTICE</p>
         <h1>A small hiccup in the lab.</h1>
         <p className={styles.copy}>
-          This page ran into a temporary issue. Your account and work are safe—try again, or head back to a fresh start.
+          This page ran into a temporary issue. Your account and work are safe. Try again, or head back to a fresh start.
         </p>
         <div className={styles.actions}>
           <button className={styles.primaryAction} type="button" onClick={retry}>

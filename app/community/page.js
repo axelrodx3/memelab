@@ -7,7 +7,7 @@ import CommunityFeed from "./CommunityFeed";
 import CommunityPulse from "./CommunityPulse";
 
 export const metadata = {
-  title: "Community — MemeLab",
+  title: "Community | MemeLab",
   description: "Discover images, memes and conversations from the MemeLab community."
 };
 export const dynamic = "force-dynamic";
@@ -29,7 +29,7 @@ export default async function CommunityPage({ searchParams }) {
         <div>
           <span className="section-label">THE MEMELAB COMMUNITY</span>
           <h1>The internet’s new<br /><span>creative Stream.</span></h1>
-          <p>Post anything worth seeing. Vote on what rises. Join the conversation.</p>
+          <p>Post anything worth seeing. Vote on what rises. Talk in Rooms. Keep your closest groups in Circles.</p>
         </div>
         <Link className="primary-cta" href={viewer ? "/community/create" : "/auth?next=/community/create"}>
           <ImagePlus size={18} /> Create a post
@@ -38,7 +38,8 @@ export default async function CommunityPage({ searchParams }) {
 
       <nav className="community-mode-nav shell glass" aria-label="Community areas">
         <Link className="active" href="/community">Stream</Link>
-        <Link href="/community/discuss">Discussions</Link>
+        <Link href="/community/rooms">Rooms</Link>
+        <Link href="/community/circles">Circles</Link>
       </nav>
 
       <div className="community-layout shell">

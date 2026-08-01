@@ -7,10 +7,15 @@ create table if not exists public.circles (
   slug text not null unique check (slug ~ '^[a-z0-9][a-z0-9-]{2,30}$'),
   name text not null check (char_length(name) between 3 and 48),
   description text not null default '' check (char_length(description) <= 360),
+  avatar_url text,
+  banner_url text,
   member_count integer not null default 1 check (member_count >= 0),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+alter table public.circles
+  add column if not exists avatar_url text,
+  add column if not exists banner_url text;
 create index if not exists circles_owner_idx on public.circles(owner_id, created_at desc);
 
 create table if not exists public.circle_members (

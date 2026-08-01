@@ -3,7 +3,7 @@ import SiteHeader from "../components/SiteHeader";
 import { createClient, getViewer } from "../../lib/supabase/server";
 import AccountCenter from "./AccountCenter";
 
-export const metadata = { title: "Account Center — MemeLab" };
+export const metadata = { title: "Account Center | MemeLab" };
 export const dynamic = "force-dynamic";
 
 export default async function AccountPage() {

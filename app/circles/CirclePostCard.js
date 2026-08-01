@@ -17,7 +17,7 @@ function MemberAvatar({ member, size = 36 }) {
   return <span className="circle-member-avatar" style={{ width: size, height: size }}>{member?.avatar_url ? <Image src={member.avatar_url} alt="" fill sizes={`${size}px`} /> : label.charAt(0).toUpperCase()}</span>;
 }
 
-export default function CirclePostCard({ post, viewer, viewerRole, slug, detail = false }) {
+export default function CirclePostCard({ post, viewer, viewerRole, slug, detail = false, basePath = "/community/circles" }) {
   const router = useRouter();
   const [vote, setVote] = useState(post.viewerVote || 0);
   const [score, setScore] = useState(post.vote_score || 0);
@@ -60,7 +60,7 @@ export default function CirclePostCard({ post, viewer, viewerRole, slug, detail 
       const response = await fetch(`/api/circles/posts/${post.id}`, { method: "DELETE" });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || "The Circle post could not be deleted.");
-      if (detail) window.location.assign(`/circles/${slug}`);
+      if (detail) window.location.assign(`${basePath}/${slug}`);
       else router.refresh();
     } catch (error) {
       setMessage(error.message || "The Circle post could not be deleted.");
@@ -81,7 +81,7 @@ export default function CirclePostCard({ post, viewer, viewerRole, slug, detail 
       </header>
 
       <div className="circle-post-copy">
-        {detail ? <h1>{post.title}</h1> : <h2><Link href={`/circles/${slug}/posts/${post.id}`}>{post.title}</Link></h2>}
+        {detail ? <h1>{post.title}</h1> : <h2><Link href={`${basePath}/${slug}/posts/${post.id}`}>{post.title}</Link></h2>}
         {post.body && <p>{post.body}</p>}
       </div>
 
@@ -91,7 +91,7 @@ export default function CirclePostCard({ post, viewer, viewerRole, slug, detail 
           <strong>{score}</strong>
           <button type="button" className={vote === -1 ? "active down" : ""} disabled={busy} onClick={() => castVote(-1)} aria-label="Downvote Circle post"><ArrowBigDown size={19} /></button>
         </div>
-        {!detail && <Link href={`/circles/${slug}/posts/${post.id}#circle-comments`}><MessageCircle size={16} /> {post.comments_count} {post.comments_count === 1 ? "comment" : "comments"}</Link>}
+        {!detail && <Link href={`${basePath}/${slug}/posts/${post.id}#circle-comments`}><MessageCircle size={16} /> {post.comments_count} {post.comments_count === 1 ? "comment" : "comments"}</Link>}
       </footer>
       {message && <p className="circle-post-message" role="status">{message}</p>}
 

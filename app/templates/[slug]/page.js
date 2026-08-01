@@ -17,10 +17,10 @@ async function resolveTemplate(slug) {
 export async function generateMetadata({ params }) {
   const { slug } = await params;
   const { template } = await resolveTemplate(slug);
-  if (!template) return { title: "Template not found — MemeLab" };
+  if (!template) return { title: "Template not found | MemeLab" };
 
   return {
-    title: `${template.name} Meme Template — MemeLab`,
+    title: `${template.name} Meme Template | MemeLab`,
     description: `Edit or download the blank ${template.name} meme template. Add captions, characters and logos with MemeLab.`
   };
 }

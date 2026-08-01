@@ -28,7 +28,6 @@ export default function SiteHeader() {
       <div className="nav-links">
         <Link href="/templates">Templates</Link>
         <Link href="/community">Community</Link>
-        <Link href="/circles">Circles</Link>
         <Link href="/studio">Studio</Link>
         <Link href="/projects">Projects</Link>
         <Link href="/templates?category=Favorites">Favorites</Link>
@@ -63,7 +62,6 @@ export default function SiteHeader() {
         <div className="mobile-menu glass">
           <Link href="/templates" onClick={() => setMobileOpen(false)}>Templates</Link>
           <Link href="/community" onClick={() => setMobileOpen(false)}>Community</Link>
-          <Link href="/circles" onClick={() => setMobileOpen(false)}>Circles</Link>
           <Link href="/studio" onClick={() => setMobileOpen(false)}>MemeLab Studio</Link>
           <Link href="/projects" onClick={() => setMobileOpen(false)}>Projects</Link>
           <Link href="/friends" onClick={() => setMobileOpen(false)}>Friends</Link>

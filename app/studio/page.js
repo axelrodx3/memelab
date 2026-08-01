@@ -6,7 +6,7 @@ import { createClient, getViewer } from "../../lib/supabase/server";
 import SiteHeader from "../components/SiteHeader";
 import StudioStarter from "./StudioStarter";
 
-export const metadata = { title: "MemeLab Studio — Create something worth sharing" };
+export const metadata = { title: "MemeLab Studio | Create something worth sharing" };
 export const dynamic = "force-dynamic";
 
 export default async function StudioPage() {

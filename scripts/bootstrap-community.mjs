@@ -990,34 +990,12 @@ async function curateTemplates() {
   console.log(`MemeLab catalog curated: ${rows.length} templates, ${fingerprinted} fingerprints added.`);
 }
 
-async function seedCommunity() {
-  const templates = await sql`
-    select id, name, image_url from public.template_assets
-    order by rank asc
-    limit 6
-  `;
-  for (const template of templates) {
-    await sql`
-      insert into public.posts (
-        author_id, source_label, title, caption, image_url, source_template_id
-      )
-      values (
-        null, 'MemeLab', ${template.name}, 'A classic format ready for its next remix.',
-        ${template.image_url}, ${template.id}
-      )
-      on conflict (source_template_id) where author_id is null and source_template_id is not null
-      do nothing
-    `;
-  }
-}
-
 try {
   console.log("Preparing MemeLab community database and storage…");
   await sql.unsafe(schema);
   await syncTemplates();
   await deduplicateTemplates();
   await curateTemplates();
-  await seedCommunity();
   console.log("MemeLab community bootstrap complete.");
 } finally {
   await sql.end();

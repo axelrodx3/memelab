@@ -3,7 +3,7 @@ import SiteHeader from "../components/SiteHeader";
 import { createClient, getViewer } from "../../lib/supabase/server";
 import ModerationQueue from "./ModerationQueue";
 
-export const metadata = { title: "Moderation — MemeLab" };
+export const metadata = { title: "Moderation | MemeLab" };
 export const dynamic = "force-dynamic";
 
 export default async function ModerationPage() {

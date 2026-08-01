@@ -4,7 +4,7 @@ import MessagesShell from "./MessagesShell";
 import { getConversationsForMember, getMessageTarget } from "../../lib/social";
 import { getViewer } from "../../lib/supabase/server";
 
-export const metadata = { title: "Messages — MemeLab" };
+export const metadata = { title: "Messages | MemeLab" };
 export const dynamic = "force-dynamic";
 
 export default async function MessagesPage({ searchParams }) {
