@@ -259,6 +259,77 @@ create trigger comment_votes_refresh_counts
 after insert or update or delete on public.comment_votes
 for each row execute procedure public.refresh_comment_vote_counts();
 
+-- Karma is an aggregate of the score on a member's active posts and comments.
+-- Keep it database-owned so public profiles cannot drift from community voting.
+create or replace function public.recalculate_profile_karma(target_profile_id uuid)
+returns void
+language plpgsql
+security definer set search_path = ''
+as $$
+begin
+  if target_profile_id is null then
+    return;
+  end if;
+
+  update public.profiles
+  set karma =
+    coalesce((
+      select sum(post.vote_score)::integer
+      from public.posts as post
+      where post.author_id = target_profile_id and post.status = 'active'
+    ), 0)
+    + coalesce((
+      select sum(comment.score)::integer
+      from public.comments as comment
+      where comment.author_id = target_profile_id and comment.status = 'active'
+    ), 0)
+  where id = target_profile_id;
+end;
+$$;
+revoke execute on function public.recalculate_profile_karma(uuid) from public, anon, authenticated;
+
+create or replace function public.refresh_profile_karma_from_post()
+returns trigger
+language plpgsql
+security definer set search_path = ''
+as $$
+begin
+  if tg_op <> 'INSERT' then
+    perform public.recalculate_profile_karma(old.author_id);
+  end if;
+  if tg_op <> 'DELETE' and (tg_op = 'INSERT' or new.author_id is distinct from old.author_id) then
+    perform public.recalculate_profile_karma(new.author_id);
+  end if;
+  return coalesce(new, old);
+end;
+$$;
+drop trigger if exists posts_refresh_author_karma on public.posts;
+create trigger posts_refresh_author_karma
+after insert or update or delete on public.posts
+for each row execute procedure public.refresh_profile_karma_from_post();
+revoke execute on function public.refresh_profile_karma_from_post() from public, anon, authenticated;
+
+create or replace function public.refresh_profile_karma_from_comment()
+returns trigger
+language plpgsql
+security definer set search_path = ''
+as $$
+begin
+  if tg_op <> 'INSERT' then
+    perform public.recalculate_profile_karma(old.author_id);
+  end if;
+  if tg_op <> 'DELETE' and (tg_op = 'INSERT' or new.author_id is distinct from old.author_id) then
+    perform public.recalculate_profile_karma(new.author_id);
+  end if;
+  return coalesce(new, old);
+end;
+$$;
+drop trigger if exists comments_refresh_author_karma on public.comments;
+create trigger comments_refresh_author_karma
+after insert or update or delete on public.comments
+for each row execute procedure public.refresh_profile_karma_from_comment();
+revoke execute on function public.refresh_profile_karma_from_comment() from public, anon, authenticated;
+
 create or replace function public.refresh_post_comment_count()
 returns trigger language plpgsql security definer set search_path = '' as $$
 declare target_id uuid;
@@ -276,6 +347,9 @@ drop trigger if exists comments_refresh_post_count on public.comments;
 create trigger comments_refresh_post_count
 after insert or update or delete on public.comments
 for each row execute procedure public.refresh_post_comment_count();
+
+-- Reconcile profiles created before the live aggregate was introduced.
+select public.recalculate_profile_karma(id) from public.profiles;
 
 create or replace function public.enforce_post_rate_limit()
 returns trigger language plpgsql security definer set search_path = '' as $$

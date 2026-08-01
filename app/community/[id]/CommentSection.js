@@ -34,11 +34,18 @@ function Comment({ comment, viewer }) {
 
   const author = comment.author?.display_name || comment.author?.username || "Deleted member";
   const avatarUrl = comment.author?.avatar_url || null;
+  const avatar = (
+    <>
+      {avatarUrl ? <Image src={avatarUrl} alt="" fill sizes="34px" /> : author.charAt(0).toUpperCase()}
+    </>
+  );
   return (
     <article className="comment-card">
-      <div className={`comment-avatar ${avatarUrl ? "has-image" : ""}`}>
-        {avatarUrl ? <Image src={avatarUrl} alt="" fill sizes="34px" /> : author.charAt(0).toUpperCase()}
-      </div>
+      {comment.author?.username ? (
+        <Link href={`/u/${comment.author.username}`} className={`comment-avatar is-link ${avatarUrl ? "has-image" : ""}`} aria-label={`Open ${author}'s profile`}>
+          {avatar}
+        </Link>
+      ) : <div className={`comment-avatar ${avatarUrl ? "has-image" : ""}`}>{avatar}</div>}
       <div className="comment-main">
         <header>
           {comment.author?.username ? <Link href={`/u/${comment.author.username}`}>{author}</Link> : <strong>{author}</strong>}

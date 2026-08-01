@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
+import PresenceStatus from "../components/PresenceStatus";
 import { createClient } from "../../lib/supabase/client";
 import styles from "./AccountCenter.module.css";
 
@@ -51,12 +52,12 @@ function FieldMessage({ value }) {
   return value ? <p className={styles.message} role="status">{value}</p> : null;
 }
 
-function ImageGuide({ label, children }) {
+function ImageGuide({ label, children, placement = "below" }) {
   const [open, setOpen] = useState(false);
 
   return (
     <span
-      className={styles.imageGuide}
+      className={`${styles.imageGuide} ${placement === "above" ? styles.imageGuideAbove : ""}`}
       onMouseEnter={() => setOpen(true)}
       onMouseLeave={() => setOpen(false)}
     >
@@ -337,7 +338,7 @@ export default function AccountCenter({ profile: initialProfile, settings: initi
           {profile.banner_url && <Image src={profile.banner_url} alt="" fill priority sizes="1200px" />}
           <div className={styles.bannerActions}>
             <button type="button" onClick={() => bannerInput.current?.click()}><ImagePlus size={15} /> Change banner</button>
-            <ImageGuide label="Banner image recommendations">Best results: 1600 × 500 px (3.2:1). Keep important details near the middle. PNG, JPG or WEBP · 5MB max.</ImageGuide>
+            <ImageGuide label="Banner image recommendations" placement="above">Best results: 1600 × 500 px (3.2:1). Keep important details near the middle. PNG, JPG or WEBP · 5MB max.</ImageGuide>
           </div>
           <input ref={bannerInput} hidden type="file" accept="image/png,image/jpeg,image/webp" onChange={(event) => uploadImage("banner", event.target.files?.[0])} />
         </div>
@@ -348,9 +349,9 @@ export default function AccountCenter({ profile: initialProfile, settings: initi
             <h1>{profile.display_name || profile.username}</h1>
             <p>@{profile.username} · {profile.karma} karma</p>
           </div>
-          <div className={profile.account_status === "active" && settings.show_online_status ? styles.active : styles.inactive}>
-            <i /> {profile.account_status !== "active" ? "Deactivated" : settings.show_online_status ? "Online" : "Offline"}
-          </div>
+          {profile.account_status === "active"
+            ? <PresenceStatus userId={profile.id} />
+            : <div className={styles.inactive}><i /> Deactivated</div>}
         </div>
       </header>
 

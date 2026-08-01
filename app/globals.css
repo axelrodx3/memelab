@@ -463,6 +463,9 @@ textarea { font: inherit; }
 .post-avatar { width: 37px; height: 37px; flex: 0 0 auto; border-radius: 10px; display: grid; place-items: center; position: relative; overflow: hidden; background: linear-gradient(145deg, #9f86ff, #6041d2); color: #111018; font-size: 13px; font-weight: 900; }
 .post-avatar.has-image { border: 1px solid rgba(255,255,255,.14); background: #161721; }
 .post-avatar img { object-fit: cover; }
+.post-avatar.is-link, .comment-avatar.is-link { cursor: pointer; transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease; }
+.post-avatar.is-link:hover, .comment-avatar.is-link:hover { transform: translateY(-1px); border-color: rgba(201,188,255,.7); box-shadow: 0 9px 18px rgba(100,72,204,.24); }
+.post-avatar.is-link:focus-visible, .comment-avatar.is-link:focus-visible { outline: 2px solid #c7b6ff; outline-offset: 3px; }
 .post-meta > div:nth-child(2) { display: grid; gap: 3px; }
 .post-meta a, .post-meta strong { color: #dedde4; font-size: 11px; font-weight: 750; }
 .post-meta span { color: #666872; font-size: 9px; }

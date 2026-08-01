@@ -62,13 +62,20 @@ export default function PostCard({ post, viewerId, showMature = false, detail = 
 
   const profileHref = post.author?.username ? `/u/${post.author.username}` : null;
   const avatarUrl = post.author?.avatar_url || null;
+  const avatar = (
+    <>
+      {avatarUrl ? <Image src={avatarUrl} alt="" fill sizes="37px" /> : authorLabel(post).charAt(0).toUpperCase()}
+    </>
+  );
 
   return (
     <article className={`community-post glass ${detail ? "post-detail-card" : ""}`}>
       <header className="post-meta">
-        <div className={`post-avatar ${avatarUrl ? "has-image" : ""}`}>
-          {avatarUrl ? <Image src={avatarUrl} alt="" fill sizes="37px" /> : authorLabel(post).charAt(0).toUpperCase()}
-        </div>
+        {profileHref ? (
+          <Link href={profileHref} className={`post-avatar is-link ${avatarUrl ? "has-image" : ""}`} aria-label={`Open ${authorLabel(post)}'s profile`}>
+            {avatar}
+          </Link>
+        ) : <div className={`post-avatar ${avatarUrl ? "has-image" : ""}`}>{avatar}</div>}
         <div>
           {profileHref ? <Link href={profileHref}>{authorLabel(post)}</Link> : <strong>{authorLabel(post)}</strong>}
           <span><RelativeTime value={post.createdAt} />{post.author?.karma ? ` · ${post.author.karma} karma` : ""}</span>
