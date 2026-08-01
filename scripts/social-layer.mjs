@@ -32,6 +32,7 @@ create table if not exists public.friendships (
 );
 create index if not exists friendships_member_one_idx on public.friendships (member_one_id, status, updated_at desc);
 create index if not exists friendships_member_two_idx on public.friendships (member_two_id, status, updated_at desc);
+create index if not exists friendships_requested_by_idx on public.friendships (requested_by_id, status, updated_at desc);
 
 create table if not exists public.direct_conversations (
   id uuid primary key default gen_random_uuid(),
@@ -50,6 +51,7 @@ create table if not exists public.direct_conversations (
 );
 create index if not exists direct_conversations_member_one_idx on public.direct_conversations (member_one_id, last_message_at desc nulls last);
 create index if not exists direct_conversations_member_two_idx on public.direct_conversations (member_two_id, last_message_at desc nulls last);
+create index if not exists direct_conversations_created_by_idx on public.direct_conversations (created_by_id, created_at desc);
 
 create table if not exists public.direct_messages (
   id uuid primary key default gen_random_uuid(),
