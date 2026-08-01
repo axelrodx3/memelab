@@ -1,4 +1,5 @@
 import "./globals.css";
+import "./editor-studio.css";
 import { DM_Sans, Manrope } from "next/font/google";
 import PresenceBeacon from "./components/PresenceBeacon";
 import ClientErrorReporter from "./components/ClientErrorReporter";
