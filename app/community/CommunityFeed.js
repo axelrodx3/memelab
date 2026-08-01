@@ -3,7 +3,7 @@
 import { ImageOff } from "lucide-react";
 import PostCard from "./PostCard";
 
-export default function CommunityFeed({ posts, viewerId, showMature, emptyTitle = "The Stream is getting ready.", emptyText = "New community posts will appear here." }) {
+export default function CommunityFeed({ posts, viewerId, showMature, variant = "stream", emptyTitle = "The Stream is getting ready.", emptyText = "New community posts will appear here." }) {
   if (!posts.length) {
     return (
       <div className="community-empty glass">
@@ -22,6 +22,7 @@ export default function CommunityFeed({ posts, viewerId, showMature, emptyTitle 
           post={post}
           viewerId={viewerId}
           showMature={showMature}
+          variant={variant}
         />
       ))}
     </div>

@@ -29,25 +29,39 @@ export default async function DiscussionsPage({ searchParams }) {
       <div className="ambient ambient-one" />
       <SiteHeader />
       <section className="discussion-hero shell">
-        <div><span className="section-label">MEMELAB DISCUSSIONS</span><h1>Talk shop.<br /><span>Trade ideas.</span></h1><p>Focused rooms for creators, meme historians and everyone building the next thing.</p></div>
+        <div>
+          <span className="section-label">MEMELAB DISCUSSIONS</span>
+          <h1>Keep the good<br /><span>ideas moving.</span></h1>
+          <p>Focused rooms for creators, meme historians and the people shaping what comes next.</p>
+        </div>
         <Link className="primary-cta" href={viewer ? `/community/discuss/create?channel=${channel}` : `/auth?next=/community/discuss/create?channel=${channel}`}><Plus size={17} /> Start a discussion</Link>
       </section>
-      <nav className="community-mode-nav shell glass" aria-label="Community areas">
-        <Link href="/community">Image feed</Link>
+      <nav className="community-mode-nav discussion-mode-nav shell glass" aria-label="Community areas">
+        <Link href="/community">Stream</Link>
         <Link className="active" href="/community/discuss">Discussions</Link>
       </nav>
 
       <div className="discussion-layout shell">
-        <aside className="discussion-channels glass">
-          <span className="section-label">CHANNELS</span>
-          {CHANNELS.map(([slug, label, Icon, description]) => (
-            <Link className={channel === slug ? "active" : ""} href={`/community/discuss?channel=${slug}`} key={slug}>
-              <Icon size={16} /><span><strong>{label}</strong><small>{description}</small></span>
-            </Link>
-          ))}
+        <aside className="discussion-rooms" aria-label="Discussion rooms">
+          <div className="discussion-rooms-label">
+            <span className="section-label">ROOMS</span>
+            <small>Choose a topic</small>
+          </div>
+          <nav>
+            {CHANNELS.map(([slug, label, Icon]) => (
+              <Link
+                aria-current={channel === slug ? "page" : undefined}
+                className={channel === slug ? "active" : ""}
+                href={`/community/discuss?channel=${slug}&sort=${sort}`}
+                key={slug}
+              >
+                <Icon size={15} /><span>{label}</span>
+              </Link>
+            ))}
+          </nav>
         </aside>
         <section className="discussion-feed">
-          <header className="discussion-feed-heading glass">
+          <header className="discussion-feed-heading">
             <div><span>CHANNEL</span><h2>{selected[1]}</h2><p>{selected[3]}</p></div>
             <nav><Link className={sort === "new" ? "active" : ""} href={`/community/discuss?channel=${channel}&sort=new`}>Newest</Link><Link className={sort === "top" ? "active" : ""} href={`/community/discuss?channel=${channel}&sort=top`}>Top</Link></nav>
           </header>
@@ -55,6 +69,7 @@ export default async function DiscussionsPage({ searchParams }) {
             posts={discussions}
             viewerId={viewer?.id || null}
             showMature
+            variant="discussion"
             emptyTitle={`No topics in ${selected[1]} yet.`}
             emptyText="Start the first conversation in this room."
           />
