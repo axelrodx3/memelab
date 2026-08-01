@@ -40,7 +40,11 @@ export default function PresenceBeacon() {
           enabled = settings?.show_online_status !== false;
         }
         if (cancelled || currentAttempt !== attempt || !enabled) return;
-        cleanup = subscribeToPresence({ userId: user.id, track: true });
+        cleanup = subscribeToPresence({
+          userId: user.id,
+          track: true,
+          onError: (presenceError) => reportClientError({ type: "presence-channel", error: presenceError })
+        });
       } catch (error) {
         if (!cancelled) reportClientError({ type: "presence-connect", error });
       }

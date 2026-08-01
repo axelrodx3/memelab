@@ -16,7 +16,7 @@ export default function CommunityPulse({ stats }) {
   const [online, setOnline] = useState(0);
   useEffect(() => {
     const cleanup = subscribeToPresence({ onSync: (ids) => setOnline(ids.size) });
-    return () => { cleanup(); };
+    return () => { void cleanup(); };
   }, []);
   const values = { ...stats, online };
 

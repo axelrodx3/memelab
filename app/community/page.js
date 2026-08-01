@@ -37,7 +37,7 @@ export default async function CommunityPage({ searchParams }) {
       </section>
 
       <nav className="community-mode-nav shell glass" aria-label="Community areas">
-        <Link className="active" href="/community">Image feed</Link>
+        <Link className="active" href="/community">Stream</Link>
         <Link href="/community/discuss">Discussions</Link>
       </nav>
 
