@@ -13,7 +13,7 @@ export default async function AccountPage() {
   const supabase = await createClient();
   const { data: settings } = await supabase
     .from("account_settings")
-    .select("gender,visibility_before_deactivation,notification_email,notification_replies,notification_votes,show_online_status,message_permission")
+    .select("gender,visibility_before_deactivation,notification_email,notification_replies,notification_votes,notification_social,notification_messages,show_online_status,message_permission")
     .eq("user_id", viewer.id)
     .maybeSingle();
   const { data: blocks } = await supabase
@@ -35,6 +35,8 @@ export default async function AccountPage() {
           notification_email: true,
           notification_replies: true,
           notification_votes: true,
+          notification_social: true,
+          notification_messages: true,
           show_online_status: true,
           message_permission: "everyone"
         }}

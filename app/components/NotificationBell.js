@@ -1,12 +1,19 @@
 "use client";
 
-import { Bell, CheckCheck, MessageCircle, Reply } from "lucide-react";
+import { Bell, CheckCheck, MessageCircle, Reply, UserPlus } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { createClient } from "../../lib/supabase/client";
 
 function notificationIcon(type) {
   return type === "reply" ? Reply : MessageCircle;
+}
+
+function notificationHref(item) {
+  if (item.conversation_id) return `/messages/${item.conversation_id}`;
+  if (item.post_id) return `/community/${item.post_id}#comments`;
+  if (item.actor?.username) return `/u/${item.actor.username}`;
+  return "/community";
 }
 
 export default function NotificationBell() {
@@ -18,7 +25,7 @@ export default function NotificationBell() {
     if (!id) return;
     const { data } = await createClient()
       .from("notifications")
-      .select("id,type,message,post_id,read_at,created_at,actor:profiles!notifications_actor_id_fkey(username,display_name,avatar_url)")
+      .select("id,type,message,post_id,conversation_id,read_at,created_at,actor:profiles!notifications_actor_id_fkey(username,display_name,avatar_url)")
       .eq("user_id", id)
       .order("created_at", { ascending: false })
       .limit(12);
@@ -83,9 +90,9 @@ export default function NotificationBell() {
           <header><strong>Notifications</strong><button type="button" onClick={markAllRead}><CheckCheck size={14} /> Mark read</button></header>
           <div>
             {notifications.map((item) => (
-              <Link className={item.read_at ? "" : "unread"} href={item.post_id ? `/community/${item.post_id}#comments` : "/community"} key={item.id} onClick={() => { void markRead(item.id); setOpen(false); }}>
+              <Link className={item.read_at ? "" : "unread"} href={notificationHref(item)} key={item.id} onClick={() => { void markRead(item.id); setOpen(false); }}>
                 {(() => {
-                  const Icon = notificationIcon(item.type);
+                  const Icon = item.type === "friend_request" || item.type === "friend_accepted" ? UserPlus : notificationIcon(item.type);
                   return <i><Icon size={12} /></i>;
                 })()}
                 <span><strong>{item.actor?.display_name || item.actor?.username || "A MemeLab member"}</strong> {item.message}<small>{new Date(item.created_at).toLocaleString(undefined, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}</small></span>

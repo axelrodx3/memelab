@@ -1,13 +1,15 @@
 import {
-  CalendarDays, EyeOff, Heart, ImageIcon, MessageCircle, TrendingUp
+  CalendarDays, EyeOff, Heart, ImageIcon, MessageCircle, TrendingUp, Users
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import SiteHeader from "../../components/SiteHeader";
 import PresenceStatus from "../../components/PresenceStatus";
+import ProfileSocialActions from "../../components/ProfileSocialActions";
 import { getPublicProfile } from "../../../lib/community";
 import { formatRelativeTime } from "../../../lib/relative-time";
+import { getViewer } from "../../../lib/supabase/server";
 import { templateHref } from "../../../lib/template-utils";
 
 export const dynamic = "force-dynamic";
@@ -29,7 +31,8 @@ export default async function PublicProfilePage({ params, searchParams }) {
   const query = await searchParams;
   const requestedTab = query?.tab || "posts";
   const activeTab = PROFILE_TABS.some(([value]) => value === requestedTab) ? requestedTab : "posts";
-  const profile = await getPublicProfile(username);
+  const viewer = await getViewer();
+  const profile = await getPublicProfile(username, viewer?.id || null);
   if (!profile) notFound();
 
   return (
@@ -50,10 +53,17 @@ export default async function PublicProfilePage({ params, searchParams }) {
               <h1>{profile.display_name || profile.username}</h1>
               <p>@{profile.username}</p>
               {!profile.isPrivate && profile.bio && <div className="profile-bio">{profile.bio}</div>}
+              {viewer && viewer.id !== profile.id && (
+                <ProfileSocialActions
+                  member={{ id: profile.id, username: profile.username, display_name: profile.display_name }}
+                  initialRelationship={profile.relationship}
+                />
+              )}
             </div>
             <div className="profile-stats">
               <PresenceStatus userId={profile.id} />
               <span><TrendingUp size={16} /><strong>{profile.karma}</strong> karma</span>
+              <span><Users size={16} /><strong>{profile.friend_count || 0}</strong> friends</span>
               {!profile.isPrivate && profile.show_activity && <span><ImageIcon size={16} /><strong>{profile.posts.length}</strong> posts</span>}
               <span><CalendarDays size={16} />Joined {formatRelativeTime(profile.created_at)}</span>
             </div>
