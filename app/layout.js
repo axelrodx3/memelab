@@ -14,7 +14,7 @@ const manrope = Manrope({
 });
 
 export const metadata = {
-  title: "MemeLab — The internet's meme studio",
+  title: "MemeLab | The internet's meme studio",
   description: "Discover iconic meme templates, remix them in seconds, and export without watermarks."
 };
 

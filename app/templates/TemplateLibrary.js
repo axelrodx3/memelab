@@ -10,8 +10,8 @@ import TemplateCard from "../components/TemplateCard";
 const PAGE_SIZE = 24;
 const SORT_OPTIONS = [
   { value: "popular", label: "Most popular" },
-  { value: "az", label: "Name: A–Z" },
-  { value: "za", label: "Name: Z–A" }
+  { value: "az", label: "Name: A to Z" },
+  { value: "za", label: "Name: Z to A" }
 ];
 
 function paginationItems(currentPage, totalPages) {
@@ -183,7 +183,7 @@ export default function TemplateLibrary({ initialTemplates, viewerId = null }) {
 
       <div className="catalog-results-row">
         <p>
-          Showing <strong>{firstResult}–{lastResult}</strong> of <strong>{filteredTemplates.length}</strong> templates
+          Showing <strong>{firstResult} to {lastResult}</strong> of <strong>{filteredTemplates.length}</strong> templates
         </p>
         {hasFilters && (
           <button type="button" onClick={() => router.replace(pathname, { scroll: false })}>

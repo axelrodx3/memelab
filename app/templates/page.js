@@ -6,7 +6,7 @@ import SiteHeader from "../components/SiteHeader";
 import TemplateLibrary from "./TemplateLibrary";
 
 export const metadata = {
-  title: "Meme Templates — MemeLab",
+  title: "Meme Templates | MemeLab",
   description: "Browse, search, favorite and remix iconic meme templates without watermarks."
 };
 
@@ -34,7 +34,7 @@ export default async function TemplatesPage() {
       <header className="catalog-hero shell">
         <div className="eyebrow"><Sparkles size={14} /> The template archive</div>
         <h1>Find the format.<br /><span>Make it yours.</span></h1>
-        <p>Browse iconic formats, current favorites and reaction classics—organized for fast remixing.</p>
+        <p>Browse iconic formats, current favorites and reaction classics, organized for fast remixing.</p>
         <div className="catalog-stat-row">
           <span><strong>{templates.length}</strong> templates</span>
           <span><strong>5</strong> collections</span>

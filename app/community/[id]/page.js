@@ -12,9 +12,9 @@ export const dynamic = "force-dynamic";
 export async function generateMetadata({ params }) {
   const { id } = await params;
   const post = await getCommunityPost(id);
-  if (!post) return { title: "Post not found — MemeLab" };
+  if (!post) return { title: "Post not found | MemeLab" };
   return {
-    title: `${post.title} — MemeLab Community`,
+    title: `${post.title} | MemeLab Community`,
     description: post.caption || "View this post and join the conversation on MemeLab."
   };
 }

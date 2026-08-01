@@ -3,7 +3,7 @@ import { createClient, getViewer } from "../../lib/supabase/server";
 import SiteHeader from "../components/SiteHeader";
 import ProjectLibrary from "./ProjectLibrary";
 
-export const metadata = { title: "Your Projects — MemeLab Studio" };
+export const metadata = { title: "Your Projects | MemeLab Studio" };
 export const dynamic = "force-dynamic";
 
 export default async function ProjectsPage() {
@@ -28,4 +28,3 @@ export default async function ProjectsPage() {
     </main>
   );
 }
-

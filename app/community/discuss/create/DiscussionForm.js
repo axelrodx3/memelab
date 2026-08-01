@@ -45,11 +45,11 @@ export default function DiscussionForm({ viewer, initialChannel }) {
 
   return (
     <form className="discussion-create-card glass" onSubmit={submit}>
-      <label>Channel<select name="channel" defaultValue={initialChannel}>{CHANNELS.map(([value, label]) => <option value={value} key={value}>{label}</option>)}</select></label>
+      <label>Room<select name="channel" defaultValue={initialChannel}>{CHANNELS.map(([value, label]) => <option value={value} key={value}>{label}</option>)}</select></label>
       <label>Title<input name="title" required maxLength={140} placeholder="What do you want to talk about?" /></label>
       <label>Body<textarea name="body" required maxLength={2000} rows={10} placeholder="Add context, explain the idea, or ask the community…" /></label>
       {message && <p role="alert">{message}</p>}
-      <button className="primary-cta" disabled={busy}>{busy ? "Publishing…" : "Publish discussion"} {!busy && <Send size={16} />}</button>
+      <button className="primary-cta" disabled={busy}>{busy ? "Publishing…" : "Publish room post"} {!busy && <Send size={16} />}</button>
     </form>
   );
 }

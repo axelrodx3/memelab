@@ -6,7 +6,7 @@ import { getViewer } from "../../../lib/supabase/server";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Email confirmation — MemeLab",
+  title: "Email confirmation | MemeLab",
   description: "Finish setting up your MemeLab account."
 };
 

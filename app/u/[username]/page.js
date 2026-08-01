@@ -17,7 +17,7 @@ export const dynamic = "force-dynamic";
 export async function generateMetadata({ params }) {
   const { username } = await params;
   const profile = await getPublicProfile(username);
-  return { title: profile ? `${profile.display_name || profile.username} — MemeLab` : "Profile not found — MemeLab" };
+  return { title: profile ? `${profile.display_name || profile.username} | MemeLab` : "Profile not found | MemeLab" };
 }
 
 const PROFILE_TABS = [

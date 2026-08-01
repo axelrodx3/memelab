@@ -4,7 +4,7 @@ import { getViewer } from "../../../lib/supabase/server";
 import CreatePostForm from "./CreatePostForm";
 
 export const metadata = {
-  title: "Create a post — MemeLab",
+  title: "Create a post | MemeLab",
   description: "Upload an image or meme to the MemeLab community."
 };
 export const dynamic = "force-dynamic";
