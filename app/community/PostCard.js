@@ -19,7 +19,7 @@ function canEdit(createdAt) {
   return Number.isFinite(timestamp) && Date.now() - timestamp <= EDIT_WINDOW_MS;
 }
 
-export default function PostCard({ post, viewerId, showMature = false, detail = false }) {
+export default function PostCard({ post, viewerId, showMature = false, detail = false, variant = "stream" }) {
   const [content, setContent] = useState(post);
   const [vote, setVote] = useState(post.viewerVote || 0);
   const [score, setScore] = useState(post.voteScore);
@@ -111,9 +111,10 @@ export default function PostCard({ post, viewerId, showMature = false, detail = 
   const profileHref = content.author?.username ? `/u/${content.author.username}` : null;
   const avatarUrl = content.author?.avatar_url || null;
   const avatar = <>{avatarUrl ? <Image src={avatarUrl} alt="" fill sizes="37px" /> : authorLabel(content).charAt(0).toUpperCase()}</>;
+  const isDiscussion = variant === "discussion";
 
   return (
-    <article className={`community-post glass ${detail ? "post-detail-card" : ""}`}>
+    <article className={`community-post glass ${detail ? "post-detail-card" : ""} ${isDiscussion ? "discussion-post" : ""}`}>
       <header className="post-meta">
         {profileHref ? <Link href={profileHref} className={`post-avatar is-link ${avatarUrl ? "has-image" : ""}`} aria-label={`Open ${authorLabel(content)}'s profile`}>{avatar}</Link> : <div className={`post-avatar ${avatarUrl ? "has-image" : ""}`}>{avatar}</div>}
         <div>
@@ -138,7 +139,7 @@ export default function PostCard({ post, viewerId, showMature = false, detail = 
       </header>
 
       <div className="post-copy">
-        {content.channelSlug && <Link className="discussion-channel-chip" href={`/community/discuss?channel=${content.channelSlug}`}>{content.channelSlug.replace("-", " ")}</Link>}
+        {!isDiscussion && content.channelSlug && <Link className="discussion-channel-chip" href={`/community/discuss?channel=${content.channelSlug}`}>{content.channelSlug.replace("-", " ")}</Link>}
         {detail ? <h1>{content.title}</h1> : <h2><Link href={`/community/${content.id}`}>{content.title}</Link></h2>}
         {content.caption && <p>{content.caption}</p>}
       </div>
