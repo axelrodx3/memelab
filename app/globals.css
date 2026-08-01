@@ -479,8 +479,8 @@ textarea { font: inherit; }
 .content-menu button.danger { color: #f09aaa; }
 .content-menu button:disabled { color: #666873; cursor: not-allowed; }
 .content-menu button:disabled:hover { background: transparent; }
-.content-action-overlay { position: absolute; z-index: 20; inset: 0; padding: 18px; display: grid; place-items: center; background: rgba(5,6,9,.7); backdrop-filter: blur(9px); }
-.content-action-card { width: min(100%, 430px); padding: 22px; border-radius: 17px; display: grid; gap: 11px; position: relative; box-shadow: 0 24px 60px rgba(0,0,0,.4); }
+.content-action-overlay { min-height: 100dvh; padding: max(20px, env(safe-area-inset-top)) max(20px, env(safe-area-inset-right)) max(20px, env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left)); position: fixed; z-index: 100; inset: 0; display: grid; place-items: center; background: rgba(5,6,9,.76); backdrop-filter: blur(11px); }
+.content-action-card { width: min(100%, 430px); max-height: calc(100dvh - 40px); padding: 22px; border-radius: 17px; display: grid; gap: 11px; position: relative; overflow-y: auto; box-shadow: 0 24px 60px rgba(0,0,0,.4); }
 .content-action-card > svg { color: #aa94fc; }
 .content-action-card h3 { margin: -3px 0 2px; color: #f1eff6; font: 700 21px/1.15 var(--font-manrope),sans-serif; letter-spacing: -.04em; }
 .content-action-card label { display: grid; gap: 6px; color: #9d9ba7; font-size: 9px; font-weight: 700; }
@@ -546,7 +546,6 @@ textarea { font: inherit; }
 .comment-more { width: 26px; height: 26px; border: 0; border-radius: 7px; display: grid; place-items: center; background: transparent; color: #696b75; cursor: pointer; }
 .comment-more:hover { background: rgba(255,255,255,.05); color: #a7a2b3; }
 .comment-card { position: relative; }
-.comment-card .content-action-overlay { min-height: 100%; }
 .comment-card .content-action-card { max-width: 370px; }
 .compact-content-card { padding: 18px; }
 .comment-main p { color: #acadb5; font-size: 12px; line-height: 1.6; white-space: pre-wrap; }
