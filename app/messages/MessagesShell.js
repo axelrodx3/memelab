@@ -8,9 +8,15 @@ import { useRouter } from "next/navigation";
 import PresenceStatus from "../components/PresenceStatus";
 import { createClient } from "../../lib/supabase/client";
 
-function MemberAvatar({ member, className = "" }) {
+function memberProfileHref(member) {
+  return member?.username ? `/u/${encodeURIComponent(member.username)}` : null;
+}
+
+function MemberAvatar({ member, className = "", href = null }) {
   const label = member?.display_name || member?.username || "M";
-  return <span className={`message-avatar ${className}`}>{member?.avatar_url ? <Image src={member.avatar_url} alt="" fill sizes="48px" /> : label.charAt(0).toUpperCase()}</span>;
+  const avatar = <span className={`message-avatar ${className}`}>{member?.avatar_url ? <Image src={member.avatar_url} alt="" fill sizes="48px" /> : label.charAt(0).toUpperCase()}</span>;
+  if (!href) return avatar;
+  return <Link className="message-avatar-link" href={href} aria-label={`Open @${member.username}'s profile`}>{avatar}</Link>;
 }
 
 function previewTime(value) {
@@ -23,12 +29,17 @@ function previewTime(value) {
 
 function ConversationRow({ conversation, active }) {
   const member = conversation.member;
+  const profileHref = memberProfileHref(member);
+  const conversationHref = `/messages/${conversation.id}`;
   return (
-    <Link className={`message-conversation ${active ? "active" : ""}`} href={`/messages/${conversation.id}`}>
-      <MemberAvatar member={member} />
-      <span><strong>{member?.display_name || member?.username || "MemeLab member"}</strong><small>{conversation.last_message_preview || "Start the conversation."}</small></span>
-      <time>{previewTime(conversation.last_message_at || conversation.created_at)}</time>
-    </Link>
+    <article className={`message-conversation ${active ? "active" : ""}`}>
+      <MemberAvatar member={member} href={profileHref} />
+      <span>
+        {profileHref ? <Link className="message-member-link" href={profileHref}><strong>{member?.display_name || member?.username || "MemeLab member"}</strong></Link> : <strong>{member?.display_name || member?.username || "MemeLab member"}</strong>}
+        <Link className="message-conversation-preview" href={conversationHref}><small>{conversation.last_message_preview || "Start the conversation."}</small></Link>
+      </span>
+      <Link className="message-conversation-open" href={conversationHref} aria-label={`Open conversation with ${member?.display_name || member?.username || "member"}`}><time>{previewTime(conversation.last_message_at || conversation.created_at)}</time></Link>
+    </article>
   );
 }
 
@@ -41,6 +52,7 @@ export default function MessagesShell({ viewer, conversations, selectedConversat
   const endRef = useRef(null);
   const conversationId = selectedConversation?.id || null;
   const target = selectedConversation?.member || startTarget;
+  const targetProfileHref = memberProfileHref(target);
 
   useEffect(() => {
     setMessages(selectedConversation?.messages || []);
@@ -117,8 +129,10 @@ export default function MessagesShell({ viewer, conversations, selectedConversat
           {target && <>
             <header className="message-thread-header">
               {conversationId && <Link href="/messages" className="message-back" aria-label="Back to messages"><ArrowLeft size={17} /></Link>}
-              <MemberAvatar member={target} className="large" />
-              <div><strong>{target.display_name || target.username}</strong><span>@{target.username}</span></div>
+              <MemberAvatar member={target} className="large" href={targetProfileHref} />
+              {targetProfileHref
+                ? <Link className="message-thread-member" href={targetProfileHref}><strong>{target.display_name || target.username}</strong><span>@{target.username}</span></Link>
+                : <div className="message-thread-member"><strong>{target.display_name || target.username}</strong><span>@{target.username}</span></div>}
               <PresenceStatus userId={target.id} />
             </header>
             <div className="message-thread" aria-live="polite">
