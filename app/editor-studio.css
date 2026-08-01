@@ -1,0 +1,34 @@
+.editor-icon-button { width: 38px; padding: 0!important; justify-content: center; }
+.editor-icon-button:disabled { opacity: .32; cursor: not-allowed; }
+.editor-add-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.editor-add-grid button, .editor-layer-actions button { min-height: 38px; border: 1px solid rgba(167,139,250,.17); border-radius: 9px; display: flex; align-items: center; justify-content: center; gap: 6px; background: rgba(139,109,248,.06); color: #b8a6f5; font-size: 9px; font-weight: 750; cursor: pointer; }
+.editor-add-grid button:hover, .editor-layer-actions button:hover { border-color: rgba(167,139,250,.38); background: rgba(139,109,248,.12); }
+.editor-add-grid button:disabled, .editor-layer-actions button:disabled { opacity: .4; cursor: wait; }
+.editor-layers-section .control-heading span { min-width: 18px; height: 18px; margin-left: auto; border: 1px solid rgba(167,139,250,.18); border-radius: 6px; display: grid; place-items: center; background: rgba(139,109,248,.07); color: #b7a4f4; font-size: 8px; }
+.editor-layer-list { display: grid; gap: 5px; max-height: 210px; overflow-y: auto; }
+.editor-layer-row { min-height: 38px; padding: 0 8px; border: 1px solid transparent; border-radius: 9px; display: grid; grid-template-columns: 24px minmax(0,1fr) 20px; align-items: center; gap: 7px; background: rgba(255,255,255,.025); color: #8b8d97; text-align: left; cursor: pointer; }
+.editor-layer-row:hover { background: rgba(255,255,255,.055); color: #d7d3e2; }
+.editor-layer-row.selected { border-color: rgba(167,139,250,.37); background: rgba(139,109,248,.12); color: #c8b8ff; }
+.editor-layer-kind { width: 24px; height: 24px; border-radius: 7px; display: grid; place-items: center; background: rgba(255,255,255,.055); color: #a991ec; }
+.editor-layer-name { min-width: 0; overflow: hidden; color: inherit; font-size: 9px; text-overflow: ellipsis; white-space: nowrap; }
+.editor-layer-state { display: grid; place-items: center; color: #6f7180; }
+.editor-no-layers { margin: 5px 0 0; color: #6c6e79; font-size: 9px; line-height: 1.5; }
+.editor-layer-actions { display: grid; grid-template-columns: repeat(2,1fr); gap: 6px; }
+.editor-layer-actions button { min-height: 32px; padding: 0 6px; border-color: var(--border); background: rgba(255,255,255,.035); color: #92939e; font-size: 8px; }
+.editor-layer-actions.compact { grid-template-columns: 1fr 1fr; }
+.editor-properties-section textarea, .editor-properties-section select { width: 100%; border: 1px solid var(--border); border-radius: 9px; outline: 0; background: rgba(255,255,255,.035); color: #ededf1; padding: 10px; font-size: 10px; }
+.editor-properties-section select { height: 34px; padding: 0 9px; }
+.editor-properties-section textarea:focus, .editor-properties-section select:focus { border-color: rgba(167,139,250,.5); }
+.editor-properties-section output { min-width: 28px; padding-bottom: 2px; color: #aaa0d1; font-size: 9px; text-align: right; }
+.editor-style-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.editor-style-grid input { width: 100%; height: 32px; padding: 2px; border: 1px solid var(--border); border-radius: 7px; background: transparent; }
+.editor-align-buttons { display: flex; gap: 5px; }
+.editor-align-buttons button { width: 32px; height: 30px; border: 1px solid var(--border); border-radius: 7px; display: grid; place-items: center; background: rgba(255,255,255,.03); color: #777986; cursor: pointer; }
+.editor-align-buttons button.active { border-color: rgba(167,139,250,.43); background: rgba(139,109,248,.14); color: #c4b2ff; }
+.editor-transform-grid { display: grid; gap: 12px; }
+.canvas-shell canvas { cursor: crosshair; touch-action: none; }
+.canvas-shell canvas:active { cursor: grabbing; }
+.canvas-selection-hint { min-height: 31px; margin-top: 14px; padding: 0 9px; border: 1px solid rgba(167,139,250,.16); border-radius: 9px; display: flex; align-items: center; gap: 8px; background: rgba(8,9,12,.72); color: #9587bf; font-size: 8px; }
+.canvas-selection-hint strong { color: #d1c9e9; font-size: 8px; }
+.canvas-selection-hint button { width: 22px; height: 22px; margin-left: auto; border: 0; border-radius: 6px; display: grid; place-items: center; background: transparent; color: #777986; cursor: pointer; }
+.canvas-selection-hint button:hover { background: rgba(255,255,255,.06); color: #ddd8e8; }
