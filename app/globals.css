@@ -1110,6 +1110,16 @@ textarea { font: inherit; }
 .circle-member-actions select { width: 100%; outline: 0; background: rgba(255,255,255,.05); }
 .circle-member-actions button:hover { background: rgba(255,255,255,.065); }
 .circle-member-actions .danger { color: #e795a5; }
+.circle-banned-list { margin-top: 11px; padding-top: 11px; border-top: 1px solid rgba(255,255,255,.065); display: grid; gap: 5px; }
+.circle-banned-list > header { display: flex; align-items: center; justify-content: space-between; color: #ad98f7; }
+.circle-banned-list > header > span:last-child { min-width: 18px; height: 18px; border: 1px solid rgba(167,139,250,.2); border-radius: 6px; display: grid; place-items: center; background: rgba(139,109,248,.08); font-size: 7px; font-weight: 800; }
+.circle-banned-row { min-height: 40px; display: grid; grid-template-columns: 31px minmax(0,1fr) auto; align-items: center; gap: 7px; }
+.circle-banned-row .circle-member-avatar { width: 31px; height: 31px; border-radius: 9px; filter: grayscale(.35); opacity: .72; }
+.circle-banned-row > div { min-width: 0; display: grid; gap: 2px; }
+.circle-banned-row strong { overflow: hidden; color: #9a9ba4; font-size: 8px; text-overflow: ellipsis; white-space: nowrap; }
+.circle-banned-row span { color: #686a74; font-size: 7px; }
+.circle-banned-row button { height: 25px; padding: 0 7px; border: 1px solid rgba(167,139,250,.18); border-radius: 7px; background: rgba(139,109,248,.08); color: #bba9fa; font-size: 7px; font-weight: 800; cursor: pointer; }
+.circle-banned-row button:disabled { opacity: .55; cursor: wait; }
 .circle-staff-key { margin-top: 11px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,.065); display: flex; align-items: flex-start; gap: 7px; color: #70727c; font-size: 8px; line-height: 1.5; }
 .circle-staff-key svg { flex: 0 0 auto; margin-top: 1px; color: #9a84e8; }
 
