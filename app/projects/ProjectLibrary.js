@@ -109,6 +109,7 @@ export default function ProjectLibrary({ initialProjects, viewerId }) {
       <header className="projects-hero projects-hero-quiet">
         <div>
           <h1>Projects</h1>
+          <p>Your saved edits, ready to pick back up.</p>
         </div>
         <Link href="/templates" className="primary-cta"><Plus size={17} /> New project</Link>
       </header>

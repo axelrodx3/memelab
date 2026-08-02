@@ -36,7 +36,7 @@ export default function CircleHub({ circles, invites, basePath = "/community/cir
   return (
     <section className="circles-shell shell">
       <header className="circles-hero glass">
-        <div><h1>Circles</h1><p>Private spaces for your people.</p></div>
+        <div><h1>Circles</h1><p>Private spaces for the people you choose.</p></div>
         <Link className="primary-cta" href={`${basePath}/new`}><Plus size={17} /> Create</Link>
       </header>
       {message && <p className="social-message" role="status">{message}</p>}

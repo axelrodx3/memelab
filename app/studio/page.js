@@ -32,7 +32,7 @@ export default async function StudioPage() {
         <header className="studio-hero studio-hero-quiet">
           <div>
             <h1>Create</h1>
-            <p>Start with an upload or a template.</p>
+            <p>Start with an image or template, then make it your own.</p>
           </div>
           <Link className="primary-cta" href="/templates"><Sparkles size={17} /> Templates</Link>
         </header>

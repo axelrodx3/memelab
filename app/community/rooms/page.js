@@ -29,7 +29,10 @@ export default async function RoomsPage({ searchParams }) {
       <div className="ambient ambient-one" />
       <SiteHeader />
       <section className="discussion-hero discussion-hero-quiet shell">
-        <h1>Rooms</h1>
+        <div>
+          <h1>Rooms</h1>
+          <p>Pick a topic and keep the conversation moving.</p>
+        </div>
         <Link className="primary-cta" href={viewer ? `/community/rooms/create?channel=${channel}` : `/auth?next=/community/rooms/create?channel=${channel}`}><Plus size={17} /> Post</Link>
       </section>
       <nav className="community-mode-nav discussion-mode-nav shell glass" aria-label="Community areas"><Link href="/community">Stream</Link><Link className="active" href="/community/rooms">Rooms</Link><Link href="/community/circles">Circles</Link></nav>

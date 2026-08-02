@@ -33,7 +33,7 @@ export default async function TemplatesPage() {
       <header className="catalog-hero catalog-hero-quiet shell">
         <div>
           <h1>Templates</h1>
-          <p>{templates.length} formats, ready to edit.</p>
+          <p>Browse, edit and download ready-to-use formats.</p>
         </div>
       </header>
 

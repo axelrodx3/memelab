@@ -26,7 +26,10 @@ export default async function CommunityPage({ searchParams }) {
       <SiteHeader />
 
       <section className="community-hero community-hero-quiet shell">
-        <h1>Stream</h1>
+        <div>
+          <h1>Stream</h1>
+          <p>See what the community is making, voting on and talking about.</p>
+        </div>
         <Link className="primary-cta" href={viewer ? "/community/create" : "/auth?next=/community/create"}>
           <ImagePlus size={18} /> Post
         </Link>
