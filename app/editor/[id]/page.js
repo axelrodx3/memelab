@@ -14,6 +14,12 @@ import { createClient } from "../../../lib/supabase/client";
 import { loadCustomBase } from "../../../lib/custom-base";
 
 const MAX_TEXT = 500;
+const MIN_ZOOM = 0.05;
+const MAX_ZOOM = 3;
+const MAX_PREVIEW_PIXELS = 16_777_216;
+const MAX_PREVIEW_DIMENSION = 4096;
+const MAX_EXPORT_PIXELS = 24_000_000;
+const MAX_EXPORT_DIMENSION = 6144;
 const DEFAULT_TEXT_COLOR = "#ffffff";
 const DEFAULT_OUTLINE_COLOR = "#000000";
 const FONT_OPTIONS = [
@@ -46,6 +52,17 @@ const FILTER_PRESETS = [
 
 function clamp(value, minimum, maximum) {
   return Math.min(maximum, Math.max(minimum, value));
+}
+
+function boundedCanvasSize(width, height, { maxPixels, maxDimension }) {
+  const pixelScale = Math.sqrt(maxPixels / Math.max(1, width * height));
+  const dimensionScale = Math.min(maxDimension / width, maxDimension / height);
+  const scale = Math.min(1, pixelScale, dimensionScale);
+  return {
+    width: Math.max(1, Math.round(width * scale)),
+    height: Math.max(1, Math.round(height * scale)),
+    scale
+  };
 }
 
 function makeId(prefix) {
@@ -473,6 +490,7 @@ export default function MemeEditor() {
   const historyRef = useRef({ entries: [], index: -1 });
   const pendingAssetIdsRef = useRef(new Set());
   const zoomModeRef = useRef("fit");
+  const zoomInputRef = useRef(null);
   const [template, setTemplate] = useState(null);
   const [viewer, setViewer] = useState(null);
   const [projectId, setProjectId] = useState(null);
@@ -489,6 +507,8 @@ export default function MemeEditor() {
   const [historyTick, setHistoryTick] = useState(0);
   const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 });
   const [zoom, setZoom] = useState(1);
+  const [zoomEditing, setZoomEditing] = useState(false);
+  const [zoomDraft, setZoomDraft] = useState("");
   const [cutoutTolerance, setCutoutTolerance] = useState(58);
   const [exportOpen, setExportOpen] = useState(false);
   const [exportFormat, setExportFormat] = useState("png");
@@ -785,15 +805,23 @@ export default function MemeEditor() {
     const base = await loadImage(template.url);
     if (!base) return;
     const canvas = canvasRef.current;
-    const scale = Math.min(1, 2400 / base.naturalWidth, 2400 / base.naturalHeight);
-    const width = Math.max(1, Math.round(base.naturalWidth * scale));
-    const height = Math.max(1, Math.round(base.naturalHeight * scale));
+    const documentWidth = base.naturalWidth;
+    const documentHeight = base.naturalHeight;
+    const maximumPreview = boundedCanvasSize(documentWidth, documentHeight, {
+      maxPixels: MAX_PREVIEW_PIXELS,
+      maxDimension: MAX_PREVIEW_DIMENSION
+    });
+    const deviceScale = typeof window === "undefined" ? 1 : Math.max(1, window.devicePixelRatio || 1);
+    const requestedScale = Math.max(1, zoom * deviceScale);
+    const renderScale = Math.min(requestedScale, maximumPreview.scale);
+    const width = Math.max(1, Math.round(documentWidth * renderScale));
+    const height = Math.max(1, Math.round(documentHeight * renderScale));
     canvas.width = width;
     canvas.height = height;
-    setCanvasSize((current) => current.width === width && current.height === height ? current : { width, height });
+    setCanvasSize((current) => current.width === documentWidth && current.height === documentHeight ? current : { width: documentWidth, height: documentHeight });
     await drawScene(canvas.getContext("2d"), width, height, showSelection);
     setRendered(true);
-  }, [drawScene, loadImage, template]);
+  }, [drawScene, loadImage, template, zoom]);
 
   useEffect(() => {
     setRendered(false);
@@ -805,7 +833,7 @@ export default function MemeEditor() {
     if (!viewport || !canvasSize.width || !canvasSize.height) return;
     const availableWidth = Math.max(180, viewport.clientWidth - 80);
     const availableHeight = Math.max(160, viewport.clientHeight - 80);
-    const nextZoom = clamp(Math.min(availableWidth / canvasSize.width, availableHeight / canvasSize.height), 0.25, 2.5);
+    const nextZoom = clamp(Math.min(availableWidth / canvasSize.width, availableHeight / canvasSize.height), MIN_ZOOM, MAX_ZOOM);
     zoomModeRef.current = "fit";
     setZoom(Number(nextZoom.toFixed(2)));
   }, [canvasSize.height, canvasSize.width]);
@@ -831,8 +859,28 @@ export default function MemeEditor() {
 
   const changeZoom = (amount) => {
     zoomModeRef.current = "manual";
-    setZoom((current) => Number(clamp(current + amount, 0.25, 3).toFixed(2)));
+    setZoom((current) => Number(clamp(current + amount, MIN_ZOOM, MAX_ZOOM).toFixed(2)));
   };
+
+  const beginZoomEditing = () => {
+    setZoomDraft(String(Math.round(zoom * 100)));
+    setZoomEditing(true);
+  };
+
+  const applyZoomDraft = () => {
+    const requestedPercent = Number(zoomDraft);
+    if (Number.isFinite(requestedPercent)) {
+      zoomModeRef.current = "manual";
+      setZoom(Number(clamp(requestedPercent / 100, MIN_ZOOM, MAX_ZOOM).toFixed(2)));
+    }
+    setZoomEditing(false);
+  };
+
+  useEffect(() => {
+    if (!zoomEditing) return;
+    zoomInputRef.current?.focus();
+    zoomInputRef.current?.select();
+  }, [zoomEditing]);
 
   const syncAsset = useCallback(async (blob, type) => {
     if (!viewer || id === "custom") return null;
@@ -1067,9 +1115,15 @@ export default function MemeEditor() {
     if (!template || !canvasRef.current) return;
     setExporting(true);
     try {
+      const base = await loadImage(template.url);
+      if (!base) throw new Error("The original image could not be loaded for export.");
+      const exportSize = boundedCanvasSize(base.naturalWidth, base.naturalHeight, {
+        maxPixels: MAX_EXPORT_PIXELS,
+        maxDimension: MAX_EXPORT_DIMENSION
+      });
       const exportCanvas = document.createElement("canvas");
-      exportCanvas.width = canvasRef.current.width;
-      exportCanvas.height = canvasRef.current.height;
+      exportCanvas.width = exportSize.width;
+      exportCanvas.height = exportSize.height;
       await drawScene(exportCanvas.getContext("2d"), exportCanvas.width, exportCanvas.height, false);
       const isJpeg = exportFormat === "jpg";
       const mimeType = isJpeg ? "image/jpeg" : "image/png";
@@ -1275,7 +1329,28 @@ export default function MemeEditor() {
             <span><Sparkles size={13} /> Drag unlocked layers. Use arrow keys for precision.</span>
             <div className="editor-zoom-controls">
               <button type="button" onClick={() => changeZoom(-0.1)} aria-label="Zoom out"><Minus size={14} /></button>
-              <output>{Math.round(zoom * 100)}%</output>
+              {zoomEditing ? (
+                <input
+                  ref={zoomInputRef}
+                  className="editor-zoom-value"
+                  type="number"
+                  min={MIN_ZOOM * 100}
+                  max={MAX_ZOOM * 100}
+                  value={zoomDraft}
+                  inputMode="numeric"
+                  aria-label="Set zoom percentage"
+                  onChange={(event) => setZoomDraft(event.target.value)}
+                  onBlur={applyZoomDraft}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter") applyZoomDraft();
+                    if (event.key === "Escape") setZoomEditing(false);
+                  }}
+                />
+              ) : (
+                <button type="button" className="editor-zoom-value" onDoubleClick={beginZoomEditing} onClick={beginZoomEditing} aria-label="Edit zoom percentage">
+                  {Math.round(zoom * 100)}%
+                </button>
+              )}
               <button type="button" onClick={() => changeZoom(0.1)} aria-label="Zoom in"><Plus size={14} /></button>
               <button type="button" className="editor-fit-canvas" onClick={fitCanvas}><Maximize2 size={13} /> Fit</button>
             </div>
