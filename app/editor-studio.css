@@ -120,7 +120,11 @@
 .editor-zoom-controls { flex: 0 0 auto; height: 32px; padding: 3px; border: 1px solid rgba(255,255,255,.08); border-radius: 9px; display: flex; align-items: center; gap: 2px; background: rgba(3,4,7,.45); }
 .editor-zoom-controls button { height: 24px; min-width: 26px; padding: 0 6px; border: 0; border-radius: 6px; display: flex; align-items: center; justify-content: center; gap: 5px; background: transparent; color: #8c8e99; font-size: 8px; cursor: pointer; }
 .editor-zoom-controls button:hover { background: rgba(255,255,255,.06); color: #e0dbe9; }
-.editor-zoom-controls output { width: 43px; color: #b0a4d4; font-size: 8px; text-align: center; font-variant-numeric: tabular-nums; }
+.editor-zoom-controls .editor-zoom-value { width: 46px; min-width: 46px; padding: 0 3px; border: 0; border-radius: 6px; background: transparent; color: #b0a4d4; font: 700 8px/1 var(--font-manrope),sans-serif; text-align: center; font-variant-numeric: tabular-nums; }
+.editor-zoom-controls button.editor-zoom-value { cursor: text; }
+.editor-zoom-controls .editor-zoom-value:hover { background: rgba(255,255,255,.055); color: #ddd6f1; }
+.editor-zoom-controls input.editor-zoom-value { height: 24px; outline: 1px solid rgba(167,139,250,.48); background: rgba(139,109,248,.12); color: #f0ebff; appearance: textfield; }
+.editor-zoom-controls input.editor-zoom-value::-webkit-inner-spin-button,.editor-zoom-controls input.editor-zoom-value::-webkit-outer-spin-button { margin: 0; appearance: none; }
 .editor-zoom-controls .editor-fit-canvas { padding-inline: 8px; border-left: 1px solid rgba(255,255,255,.07); border-radius: 0 6px 6px 0; }
 .canvas-viewport { position: relative; flex: 1 1 auto; width: 100%; min-width: 0; min-height: 0; overflow: auto; overscroll-behavior: contain; scrollbar-color: rgba(150,127,226,.28) transparent; scrollbar-width: thin; }
 .canvas-stage { display: grid; place-items: center; }
