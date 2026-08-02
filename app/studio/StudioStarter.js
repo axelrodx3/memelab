@@ -30,9 +30,8 @@ export default function StudioStarter() {
   return (
     <div className="studio-upload-card glass">
       <div className="studio-upload-icon"><Upload size={24} /></div>
-      <span>YOUR OWN IMAGE</span>
-      <h2>Start from scratch.</h2>
-      <p>Upload a base image, add captions and layers, then export it without a watermark.</p>
+      <h2>Upload an image</h2>
+      <p>Add captions, layers and effects.</p>
       <button type="button" onClick={() => inputRef.current?.click()} disabled={busy}>
         <Upload size={16} /> {busy ? "Preparing…" : "Upload an image"}
       </button>

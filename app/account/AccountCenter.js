@@ -345,7 +345,6 @@ export default function AccountCenter({ profile: initialProfile, settings: initi
         <div className={styles.identity}>
           <div className={styles.avatar}><Image src={avatarUrl} alt="" fill priority sizes="112px" /></div>
           <div>
-            <span>ACCOUNT CENTER</span>
             <h1>{profile.display_name || profile.username}</h1>
             <p>@{profile.username} · {profile.karma} karma</p>
           </div>

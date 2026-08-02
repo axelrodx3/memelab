@@ -1313,3 +1313,41 @@ textarea { font: inherit; }
   .mobile-post,.mobile-toggle { width: 40px; height: 40px; border-radius: 11px; }
   .mobile-menu { left: 0; right: 0; }
 }
+
+/* Quiet UI: let the work lead, with just enough orientation. */
+.catalog-hero-quiet { min-height: 0; padding: 58px 0 30px; text-align: left; }
+.catalog-hero-quiet h1 { margin: 0; font-size: clamp(34px,4vw,46px); letter-spacing: -.055em; }
+.catalog-hero-quiet > div > p { width: auto; margin: 8px 0 0; color: #787a84; font-size: 12px; line-height: 1.4; }
+
+.community-hero-quiet { min-height: 0; padding: 54px 0 24px; align-items: center; }
+.community-hero-quiet h1 { margin: 0; font-size: clamp(34px,4vw,46px); letter-spacing: -.055em; }
+.community-pulse { padding: 18px; }
+.community-pulse .community-stat-grid { margin-top: 13px; }
+.community-standards h3 { color: #dedbe7; }
+.studio-sidebar-card { min-height: 92px; padding: 17px; }
+.studio-sidebar-card strong { font-size: 15px; }
+
+.discussion-hero-quiet { min-height: 0; padding: 42px 0 20px; align-items: center; }
+.discussion-hero-quiet h1 { margin: 0; font-size: clamp(34px,4vw,46px); letter-spacing: -.055em; }
+.discussion-rooms-label { padding: 5px 11px 10px; }
+.discussion-rooms-label strong { color: #a690f1; font-size: 9px; font-weight: 800; letter-spacing: .13em; text-transform: uppercase; }
+.discussion-feed-heading { min-height: 66px; }
+.discussion-feed-heading h2 { margin-top: 0; }
+
+.studio-hero-quiet { min-height: 0; }
+.studio-hero-quiet h1 { margin: 0; font-size: clamp(38px,4.5vw,54px); letter-spacing: -.055em; }
+.studio-hero-quiet p { margin-top: 8px; font-size: 12px; }
+.studio-upload-card h2, .studio-template-card h2 { margin-top: 0; }
+.studio-section h2 { margin-top: 0; }
+
+.projects-hero-quiet h1 { margin: 0; font-size: clamp(38px,4.5vw,54px); letter-spacing: -.055em; }
+.circles-hero h1 { margin: 0 0 8px; }
+.circles-section-heading h2 { margin-top: 0; }
+
+@media (max-width: 760px) {
+  .catalog-hero-quiet { padding: 38px 0 22px; }
+  .community-hero-quiet { padding: 37px 0 18px; flex-direction: row; align-items: center; }
+  .discussion-hero-quiet { padding: 34px 0 17px; flex-direction: row; align-items: center; }
+  .studio-hero-quiet { flex-direction: row; align-items: center; }
+  .circles-hero { min-height: 0; }
+}

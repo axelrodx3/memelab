@@ -25,14 +25,10 @@ export default async function CommunityPage({ searchParams }) {
       <div className="ambient ambient-one" />
       <SiteHeader />
 
-      <section className="community-hero shell">
-        <div>
-          <span className="section-label">THE MEMELAB COMMUNITY</span>
-          <h1>The internet’s new<br /><span>creative Stream.</span></h1>
-          <p>Post anything worth seeing. Vote on what rises. Talk in Rooms. Keep your closest groups in Circles.</p>
-        </div>
+      <section className="community-hero community-hero-quiet shell">
+        <h1>Stream</h1>
         <Link className="primary-cta" href={viewer ? "/community/create" : "/auth?next=/community/create"}>
-          <ImagePlus size={18} /> Create a post
+          <ImagePlus size={18} /> Post
         </Link>
       </section>
 
@@ -59,7 +55,7 @@ export default async function CommunityPage({ searchParams }) {
         <aside className="community-sidebar">
           <CommunityPulse stats={stats} />
           <div className="community-standards glass">
-            <h3>Community essentials</h3>
+            <h3>Guidelines</h3>
             <ol>
               <li>Keep everything legal.</li>
               <li>Mark mature content clearly.</li>
@@ -68,8 +64,8 @@ export default async function CommunityPage({ searchParams }) {
             </ol>
           </div>
           <Link className="studio-sidebar-card" href="/studio">
-            <span>MemeLab Studio</span>
-            <strong>Turn an idea into the next post.</strong>
+            <span>Studio</span>
+            <strong>Open Studio</strong>
           </Link>
         </aside>
       </div>

@@ -1,4 +1,3 @@
-import { Sparkles } from "lucide-react";
 import { Suspense } from "react";
 import { getTemplates } from "../../lib/templates";
 import { getViewer } from "../../lib/supabase/server";
@@ -31,25 +30,16 @@ export default async function TemplatesPage() {
       <div className="ambient ambient-one" />
       <SiteHeader />
 
-      <header className="catalog-hero shell">
-        <div className="eyebrow"><Sparkles size={14} /> The template archive</div>
-        <h1>Find the format.<br /><span>Make it yours.</span></h1>
-        <p>Browse iconic formats, current favorites and reaction classics, organized for fast remixing.</p>
-        <div className="catalog-stat-row">
-          <span><strong>{templates.length}</strong> templates</span>
-          <span><strong>5</strong> collections</span>
-          <span><strong>0</strong> watermarks</span>
+      <header className="catalog-hero catalog-hero-quiet shell">
+        <div>
+          <h1>Templates</h1>
+          <p>{templates.length} formats, ready to edit.</p>
         </div>
       </header>
 
       <Suspense fallback={<CatalogSkeleton />}>
         <TemplateLibrary initialTemplates={templates} viewerId={viewer?.id || null} />
       </Suspense>
-
-      <footer className="catalog-footer shell">
-        <span>MemeLab</span>
-        <p>More formats. Better tools. Faster ideas.</p>
-      </footer>
     </main>
   );
 }

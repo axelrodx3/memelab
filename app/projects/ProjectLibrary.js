@@ -106,11 +106,9 @@ export default function ProjectLibrary({ initialProjects, viewerId }) {
 
   return (
     <section className="projects-shell shell">
-      <header className="projects-hero">
+      <header className="projects-hero projects-hero-quiet">
         <div>
-          <span className="section-label">MEMELAB STUDIO</span>
-          <h1>Your projects.</h1>
-          <p>Every signed-in edit autosaves here, private to your account.</p>
+          <h1>Projects</h1>
         </div>
         <Link href="/templates" className="primary-cta"><Plus size={17} /> New project</Link>
       </header>
@@ -230,4 +228,3 @@ export default function ProjectLibrary({ initialProjects, viewerId }) {
     </section>
   );
 }
-

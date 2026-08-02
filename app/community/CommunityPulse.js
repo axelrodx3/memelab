@@ -22,9 +22,7 @@ export default function CommunityPulse({ stats }) {
 
   return (
     <div className="community-about community-pulse glass">
-      <div className="pulse-heading"><span className="section-label">COMMUNITY PULSE</span><Activity size={17} /></div>
-      <h2>Alive right now.</h2>
-      <p>A live look at what’s happening across MemeLab.</p>
+      <div className="pulse-heading"><span className="section-label">LIVE</span><Activity size={17} /></div>
       <div className="community-stat-grid">
         {METRICS.map(([key, Icon, label]) => <span key={key}><Icon size={13} /><strong>{values[key]}</strong>{label}</span>)}
       </div>

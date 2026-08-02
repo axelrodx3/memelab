@@ -36,14 +36,14 @@ export default function CircleHub({ circles, invites, basePath = "/community/cir
   return (
     <section className="circles-shell shell">
       <header className="circles-hero glass">
-        <div><span className="section-label">MEMELAB CIRCLES</span><h1>Your people.<br /><span>Your corner.</span></h1><p>Private spaces for the friends, collaborators and conversations you actually want in one place.</p></div>
-        <Link className="primary-cta" href={`${basePath}/new`}><Plus size={17} /> Create a Circle</Link>
+        <div><h1>Circles</h1><p>Private spaces for your people.</p></div>
+        <Link className="primary-cta" href={`${basePath}/new`}><Plus size={17} /> Create</Link>
       </header>
       {message && <p className="social-message" role="status">{message}</p>}
 
       <div className="circles-hub-layout">
         <section>
-          <header className="circles-section-heading"><div><span className="section-label">PRIVATE SPACES</span><h2>Your Circles</h2><p>Only invited members can see a Circle’s people, posts and discussion.</p></div><span>{circles.length}</span></header>
+          <header className="circles-section-heading"><div><h2>Your Circles</h2><p>Invite-only spaces.</p></div><span>{circles.length}</span></header>
           <div className="circle-card-grid">
             {circles.map((circle) => <Link className="circle-card glass" href={`${basePath}/${circle.slug}`} key={circle.id}><span className="circle-card-lock"><LockKeyhole size={14} /> Private Circle</span><CircleAvatar circle={circle} size={42} className="circle-card-avatar" /><h3>{circle.name}</h3><p>{circle.description || "A private MemeLab space."}</p><footer><span><Users size={14} /> {circle.member_count} {circle.member_count === 1 ? "member" : "members"}</span><strong>{circle.membership.role}</strong></footer></Link>)}
             {!circles.length && <div className="circle-empty glass"><Users size={25} /><strong>Start a Circle worth returning to.</strong><span>Invite your people, give the conversation a home, and make it yours.</span><Link href={`${basePath}/new`}>Create your first Circle</Link></div>}
