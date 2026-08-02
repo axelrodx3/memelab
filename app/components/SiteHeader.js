@@ -4,13 +4,13 @@ import { ChevronDown, FolderKanban, Heart, Menu, MessageCircle, Plus, Users, X }
 import Link from "next/link";
 import { useState } from "react";
 import AuthControls from "./AuthControls";
+import InterlockMark from "./InterlockMark";
 import NotificationBell from "./NotificationBell";
 
 export function BrandMark() {
   return (
     <span className="brand-mark" aria-hidden="true">
-      <span />
-      <span />
+      <InterlockMark />
     </span>
   );
 }

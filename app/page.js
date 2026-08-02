@@ -4,12 +4,12 @@ import {
   ArrowRight,
   Flame,
   MessageCircle,
-  TrendingUp,
-  UsersRound
+  TrendingUp
 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import SiteHeader, { BrandMark } from "./components/SiteHeader";
+import InterlockMark from "./components/InterlockMark";
 import TemplateCard from "./components/TemplateCard";
 
 const categories = ["Trending", "Classic", "Reaction", "Animals", "Movies & TV"];
@@ -48,17 +48,12 @@ export default function Home() {
 
       <SiteHeader />
 
-      <section className="hero hero-quiet shell">
-        <h1>Make something good.</h1>
-        <p className="hero-copy">Templates, tools and a community built for remixing.</p>
-        <div className="hero-actions">
-          <Link className="primary-cta" href="/templates">Browse templates <ArrowRight size={18} /></Link>
-          <Link className="secondary-cta" href="/community"><UsersRound size={18} /> Enter the community</Link>
-        </div>
-        <div className="trust-row">
-          <span><span className="status-dot" /> Free to use</span>
-          <span>No watermarks</span>
-          <span>Built for creators</span>
+      <section className="brand-hero shell">
+        <div className="brand-hero-mark" aria-hidden="true"><InterlockMark /></div>
+        <h1>MemeLab</h1>
+        <div className="brand-hero-actions">
+          <Link className="primary-cta" href="/studio">Open Studio <ArrowRight size={18} /></Link>
+          <Link className="secondary-cta" href="/templates">Browse templates</Link>
         </div>
       </section>
 
