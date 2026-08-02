@@ -18,6 +18,7 @@ export default function Home() {
   const [favorites, setFavorites] = useState([]);
   const [liveTemplates, setLiveTemplates] = useState([]);
   const [templatesLoading, setTemplatesLoading] = useState(true);
+  const [playBrandIntro, setPlayBrandIntro] = useState(true);
 
   useEffect(() => {
     const stored = window.localStorage.getItem("memelab:favorites");
@@ -29,6 +30,19 @@ export default function Home() {
       .then((response) => response.json())
       .then((payload) => setLiveTemplates(payload.templates || []))
       .finally(() => setTemplatesLoading(false));
+  }, []);
+
+  useEffect(() => {
+    if (window.sessionStorage.getItem("memelab:brand-intro-seen")) {
+      setPlayBrandIntro(false);
+      return;
+    }
+
+    const frame = window.requestAnimationFrame(() => {
+      window.sessionStorage.setItem("memelab:brand-intro-seen", "true");
+    });
+
+    return () => window.cancelAnimationFrame(frame);
   }, []);
 
   const featuredTemplates = liveTemplates.slice(0, 8);
@@ -48,9 +62,9 @@ export default function Home() {
 
       <SiteHeader />
 
-      <section className="brand-hero shell">
+      <section className={`brand-hero shell${playBrandIntro ? " brand-hero--intro" : ""}`}>
         <div className="brand-hero-mark" aria-hidden="true"><InterlockMark /></div>
-        <h1>MemeLab</h1>
+        <h1 className="visually-hidden">MemeLab</h1>
         <div className="brand-hero-actions">
           <Link className="primary-cta" href="/studio">Open Studio <ArrowRight size={18} /></Link>
           <Link className="secondary-cta" href="/templates">Browse templates</Link>
