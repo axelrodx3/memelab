@@ -42,10 +42,11 @@ main { min-height: 100vh; overflow: hidden; position: relative; }
 
 .nav { height: 82px; display: flex; align-items: center; justify-content: space-between; position: relative; z-index: 20; }
 .brand { display: flex; align-items: center; gap: 11px; font: 700 20px/1 var(--font-manrope), sans-serif; letter-spacing: -.6px; }
-.brand-mark { width: 26px; height: 26px; position: relative; display: inline-block; }
-.brand-mark span { position: absolute; width: 17px; height: 17px; border: 2px solid #fff; border-radius: 5px; transform: rotate(45deg); }
-.brand-mark span:first-child { left: 1px; top: 4px; border-color: #bba8ff; }
-.brand-mark span:last-child { right: 1px; top: 4px; }
+.brand-mark { width: 28px; height: 22px; display: inline-flex; align-items: center; }
+.interlock-mark { width: 100%; height: auto; display: block; overflow: visible; }
+.interlock-link { transform-box: fill-box; transform-origin: center; transition: transform .2s ease, opacity .2s ease; }
+.brand:hover .interlock-link-left, .brand:focus-visible .interlock-link-left { transform: translateX(-1.5px); }
+.brand:hover .interlock-link-right, .brand:focus-visible .interlock-link-right { transform: translateX(1.5px); }
 .nav-links { display: flex; align-items: center; gap: 34px; margin-left: 100px; }
 .nav-links a, .nav-more { font-size: 14px; font-weight: 500; color: #b8bac2; transition: color .2s ease; }
 .nav-links a:hover, .nav-more:hover { color: #fff; }
@@ -72,6 +73,27 @@ main { min-height: 100vh; overflow: hidden; position: relative; }
 .trust-row { display: flex; align-items: center; justify-content: center; gap: 27px; color: #70727d; font-size: 11px; margin-top: 25px; }
 .trust-row > span:not(:first-child)::before { content: "·"; margin-right: 27px; }
 .status-dot { width: 5px; height: 5px; display: inline-block; border-radius: 50%; background: #77dfa4; margin-right: 8px; box-shadow: 0 0 8px rgba(119,223,164,.6); }
+
+/* The opening moment is the brand, not a marketing headline. */
+.brand-hero { min-height: 510px; padding: 82px 0 92px; display: grid; justify-items: center; align-content: center; position: relative; z-index: 2; text-align: center; }
+.brand-hero-mark { width: clamp(148px, 18vw, 208px); position: relative; display: grid; place-items: center; }
+.brand-hero-mark::before { width: 68%; aspect-ratio: 1; content: ""; border-radius: 50%; position: absolute; background: rgba(137,99,255,.48); filter: blur(33px); opacity: .64; }
+.brand-hero-mark .interlock-mark { position: relative; z-index: 1; filter: drop-shadow(0 10px 24px rgba(109,70,246,.35)); }
+.brand-hero-actions { margin-top: 34px; display: flex; align-items: center; justify-content: center; gap: 11px; }
+.brand-hero--intro .brand-hero-mark::before { animation: brand-bloom 1.55s cubic-bezier(.2,.76,.25,1) both; }
+.brand-hero--intro .brand-hero-mark .interlock-mark { animation: brand-mark-arrive 1.42s .2s cubic-bezier(.18,.82,.24,1) both; }
+.brand-hero--intro .interlock-link-left { animation: brand-link-left 1.14s .24s cubic-bezier(.2,.82,.23,1) both; }
+.brand-hero--intro .interlock-link-right { animation: brand-link-right 1.14s .3s cubic-bezier(.2,.82,.23,1) both; }
+.brand-hero--intro .brand-hero-actions { animation: brand-actions-in .52s 1.36s cubic-bezier(.2,.75,.25,1) both; }
+@keyframes brand-bloom { 0% { opacity: 0; transform: scale(.56); } 48% { opacity: .8; transform: scale(1.05); } 72% { opacity: .66; transform: scale(.97); } 100% { opacity: .64; transform: scale(1); } }
+@keyframes brand-mark-arrive { 0% { opacity: 0; transform: scale(.9); } 62% { opacity: 1; transform: scale(1.025); } 82% { transform: scale(.992); } 100% { opacity: 1; transform: scale(1); } }
+@keyframes brand-link-left { 0% { opacity: 0; transform: translateX(-34px) scale(.9); } 58% { opacity: 1; transform: translateX(3px) scale(1.02); } 80% { transform: translateX(-1px) scale(.995); } 100% { opacity: 1; transform: translateX(0) scale(1); } }
+@keyframes brand-link-right { 0% { opacity: 0; transform: translateX(34px) scale(.9); } 58% { opacity: 1; transform: translateX(-3px) scale(1.02); } 80% { transform: translateX(1px) scale(.995); } 100% { opacity: 1; transform: translateX(0) scale(1); } }
+@keyframes brand-actions-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+@media (prefers-reduced-motion: reduce) {
+  .brand-hero--intro .brand-hero-mark::before, .brand-hero--intro .brand-hero-mark .interlock-mark, .brand-hero--intro .interlock-link-left, .brand-hero--intro .interlock-link-right, .brand-hero--intro .brand-hero-actions { animation: none; }
+  .interlock-link { transition: none; }
+}
 
 .library { padding: 120px 0 130px; }
 .section-heading { display: flex; justify-content: space-between; align-items: flex-end; }
@@ -294,6 +316,9 @@ main { min-height: 100vh; overflow: hidden; position: relative; }
   .nav-actions { display: none; }.mobile-toggle { display: block; }
   .hero { padding-top: 76px; }
   .hero h1 { font-size: clamp(45px, 15vw, 64px); }
+  .brand-hero { min-height: 445px; padding: 58px 0 68px; }
+  .brand-hero-mark { width: min(180px, 52vw); }
+  .brand-hero-actions { width: min(340px, 100%); margin-top: 28px; flex-direction: column; align-items: stretch; }
   .hero-actions { flex-direction: column; align-items: stretch; width: min(340px, 100%); margin-inline: auto; margin-top: 28px; }
   .trust-row { flex-wrap: wrap; gap: 8px 16px; }.trust-row > span:not(:first-child)::before { display: none; }
   .library { padding: 80px 0 90px; }
