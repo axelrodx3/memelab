@@ -29,14 +29,14 @@ function paginationItems(currentPage, totalPages) {
   return items;
 }
 
-export default function TemplateLibrary({ initialTemplates, viewerId = null }) {
+export default function TemplateLibrary({ initialTemplates, viewerId = null, initialCategory = "All", lockedCategory = false }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [favorites, setFavorites] = useState([]);
 
   const query = searchParams.get("q") || "";
-  const requestedCategory = searchParams.get("category") || "All";
+  const requestedCategory = lockedCategory ? initialCategory : (searchParams.get("category") || initialCategory);
   const category = TEMPLATE_CATEGORIES.includes(requestedCategory) ? requestedCategory : "All";
   const requestedSort = searchParams.get("sort") || "popular";
   const sort = SORT_OPTIONS.some((option) => option.value === requestedSort) ? requestedSort : "popular";
@@ -135,7 +135,7 @@ export default function TemplateLibrary({ initialTemplates, viewerId = null }) {
     }
   };
 
-  const hasFilters = query || category !== "All" || sort !== "popular";
+  const hasFilters = query || (!lockedCategory && category !== "All") || sort !== "popular";
   const firstResult = filteredTemplates.length ? pageStart + 1 : 0;
   const lastResult = Math.min(pageStart + PAGE_SIZE, filteredTemplates.length);
 
@@ -167,7 +167,7 @@ export default function TemplateLibrary({ initialTemplates, viewerId = null }) {
         </label>
       </div>
 
-      <div className="catalog-categories" aria-label="Template categories">
+      {!lockedCategory && <div className="catalog-categories" aria-label="Template categories">
         {TEMPLATE_CATEGORIES.map((item) => (
           <button
             type="button"
@@ -179,7 +179,7 @@ export default function TemplateLibrary({ initialTemplates, viewerId = null }) {
             {item === "Favorites" && favorites.length > 0 && <span>{favorites.length}</span>}
           </button>
         ))}
-      </div>
+      </div>}
 
       <div className="catalog-results-row">
         <p>

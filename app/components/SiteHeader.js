@@ -46,7 +46,7 @@ export default function SiteHeader() {
           {moreOpen ? (
             <div className="nav-overflow-menu glass">
               <Link href="/projects" onClick={closeMenus}><FolderKanban size={15} /> Projects</Link>
-              <Link href="/templates?category=Favorites" onClick={closeMenus}><Heart size={15} /> Favorites</Link>
+              <Link href="/favorites" onClick={closeMenus}><Heart size={15} /> Favorites</Link>
               <Link href="/friends" onClick={closeMenus}><Users size={15} /> Friends</Link>
               <Link href="/messages" onClick={closeMenus}><MessageCircle size={15} /> Messages</Link>
             </div>
@@ -79,7 +79,7 @@ export default function SiteHeader() {
             <Link href="/projects" onClick={closeMenus}><FolderKanban size={16} /><span>Projects</span></Link>
             <Link href="/friends" onClick={closeMenus}><Users size={16} /><span>Friends</span></Link>
             <Link href="/messages" onClick={closeMenus}><MessageCircle size={16} /><span>Messages</span></Link>
-            <Link href="/templates?category=Favorites" onClick={closeMenus}><Heart size={16} /><span>Favorites</span></Link>
+            <Link href="/favorites" onClick={closeMenus}><Heart size={16} /><span>Favorites</span></Link>
           </div>
           <div className="mobile-menu-account">
             <NotificationBell />
