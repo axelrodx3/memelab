@@ -33,13 +33,13 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    if (window.sessionStorage.getItem("memelab:brand-intro-seen")) {
+    if (window.sessionStorage.getItem("memelab:brand-intro-v2-seen")) {
       setPlayBrandIntro(false);
       return;
     }
 
     const frame = window.requestAnimationFrame(() => {
-      window.sessionStorage.setItem("memelab:brand-intro-seen", "true");
+      window.sessionStorage.setItem("memelab:brand-intro-v2-seen", "true");
     });
 
     return () => window.cancelAnimationFrame(frame);
