@@ -10,7 +10,7 @@
 .avatar { width: 112px; height: 112px; margin-top: -38px; border: 5px solid #101116; border-radius: 30px; }
 .avatar img, .largeAvatar img { object-fit: cover; }
 .identity span, .panelHeading span { color: #9d87ef; font-size: 9px; font-weight: 800; letter-spacing: .16em; }
-.identity h1 { margin: 8px 0 5px; font: 700 32px/1 var(--font-manrope), sans-serif; letter-spacing: -.045em; }
+.identity h1 { margin: 0 0 5px; font: 700 32px/1 var(--font-manrope), sans-serif; letter-spacing: -.045em; }
 .identity p { margin: 0; color: #797b85; font-size: 11px; }
 .active, .inactive { align-self: center; height: 30px; padding: 0 11px; border: 1px solid rgba(111,225,157,.16); border-radius: 999px; background: rgba(72,190,120,.07); color: #93dfb0; display: flex; align-items: center; gap: 7px; font-size: 9px; }
 .active i, .inactive i { width: 5px; height: 5px; border-radius: 50%; background: #71dc9c; box-shadow: 0 0 9px #71dc9c; }

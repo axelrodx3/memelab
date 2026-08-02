@@ -19,10 +19,9 @@ export default async function AuthPage({ searchParams }) {
       <div className="ambient ambient-one" />
       <SiteHeader />
       <section className="auth-shell shell">
-        <div className="auth-intro">
-          <span className="section-label">MEMELAB COMMUNITY</span>
-          <h1>Make something.<br /><span>Become known for it.</span></h1>
-          <p>Post images, join conversations and help decide what rises through the Stream.</p>
+        <div className="auth-intro auth-intro-quiet">
+          <h1>Join MemeLab</h1>
+          <p>Create an account to post, vote and connect.</p>
           <div className="auth-benefits">
             <span>Post images and memes</span>
             <span>Vote and comment</span>

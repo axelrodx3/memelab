@@ -4,7 +4,6 @@ import {
   ArrowRight,
   Flame,
   MessageCircle,
-  Sparkles,
   TrendingUp,
   UsersRound
 } from "lucide-react";
@@ -49,9 +48,9 @@ export default function Home() {
 
       <SiteHeader />
 
-      <section className="hero shell">
-        <div className="eyebrow"><Sparkles size={14} /> Your new creative playground</div>
-        <h1>Every meme starts<br />with a <span>good idea.</span></h1>
+      <section className="hero hero-quiet shell">
+        <h1>Make something good.</h1>
+        <p className="hero-copy">Templates, tools and a community built for remixing.</p>
         <div className="hero-actions">
           <Link className="primary-cta" href="/templates">Browse templates <ArrowRight size={18} /></Link>
           <Link className="secondary-cta" href="/community"><UsersRound size={18} /> Enter the community</Link>

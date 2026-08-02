@@ -29,29 +29,27 @@ export default async function StudioPage() {
       <div className="ambient ambient-one" />
       <SiteHeader />
       <section className="studio-shell shell">
-        <header className="studio-hero">
+        <header className="studio-hero studio-hero-quiet">
           <div>
-            <span className="section-label">MEMELAB STUDIO</span>
-            <h1>Make the idea.<br /><em>Own the punchline.</em></h1>
-            <p>Start with an iconic format or bring your own image. Everything you need is one click away.</p>
+            <h1>Create</h1>
+            <p>Start with an image or template, then make it your own.</p>
           </div>
-          <Link className="primary-cta" href="/templates"><Sparkles size={17} /> Browse every template</Link>
+          <Link className="primary-cta" href="/templates"><Sparkles size={17} /> Templates</Link>
         </header>
 
         <div className="studio-start-grid">
           <StudioStarter />
           <Link className="studio-template-card glass" href="/templates">
             <div><Sparkles size={24} /></div>
-            <span>TEMPLATE LIBRARY</span>
-            <h2>Remix a classic.</h2>
-            <p>Search {templates.length} curated formats and jump straight into the editor.</p>
-            <strong>Explore templates <ArrowRight size={15} /></strong>
+            <h2>Choose a template</h2>
+            <p>{templates.length} formats, ready to remix.</p>
+            <strong>Browse templates <ArrowRight size={15} /></strong>
           </Link>
         </div>
 
         {viewer && (
           <section className="studio-section">
-            <header><div><span className="section-label">PICK UP WHERE YOU LEFT OFF</span><h2>Recent projects</h2></div><Link href="/projects">View all <ArrowRight size={14} /></Link></header>
+            <header><div><h2>Recent</h2></div><Link href="/projects">Projects <ArrowRight size={14} /></Link></header>
             <div className="studio-project-row">
               {projects.map((project) => (
                 <Link className="studio-project glass" href={`/editor/${project.template_id}?project=${project.id}`} key={project.id}>
@@ -66,7 +64,7 @@ export default async function StudioPage() {
         )}
 
         <section className="studio-section">
-          <header><div><span className="section-label">FAST STARTS</span><h2>Popular right now</h2></div><Link href="/templates">See the archive <ArrowRight size={14} /></Link></header>
+          <header><div><h2>Popular</h2></div><Link href="/templates">Templates <ArrowRight size={14} /></Link></header>
           <div className="studio-template-row">
             {featured.map((template) => (
               <Link href={`/editor/${template.id}`} className="studio-mini-template glass" key={template.id}>
