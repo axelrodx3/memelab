@@ -1394,6 +1394,20 @@ textarea { font: inherit; }
 .circle-owner-menu button { width: 100%; min-height: 31px; padding: 0 7px; border: 0; border-radius: 7px; display: flex; align-items: center; gap: 6px; background: transparent; color: #e5a0ad; font-size: 8px; font-weight: 800; cursor: pointer; }
 .circle-owner-menu button:hover { background: rgba(219,101,125,.1); }
 
+/* The Circle feed owns the page; members are a focused layer when needed. */
+.circle-room-hero { overflow: visible; z-index: 10; }
+.circle-identity-cover { border-radius: 23px 23px 0 0; }
+.circle-room-layout { grid-template-columns: minmax(0,1fr); }
+.circle-member-count { padding: 0; border: 0; display: flex; align-items: center; gap: 6px; background: transparent; color: inherit; font: inherit; cursor: pointer; white-space: nowrap; }
+.circle-member-count:hover { color: #c7b5ff; }
+.circle-members-overlay { padding: 22px; }
+.circle-members-dialog { width: min(100%, 480px); max-height: min(680px, calc(100dvh - 44px)); padding: 19px; position: relative; overflow-y: auto; box-shadow: 0 26px 70px rgba(0,0,0,.5); }
+.circle-members-dialog > header { padding-right: 36px; }
+.circle-members-dialog .circle-member-list { grid-template-columns: 1fr; }
+.circle-members-dialog .circle-member-row { min-height: 50px; }
+.circle-owner-menu { z-index: 11; }
+.circle-owner-menu > div { z-index: 12; }
+
 @media (max-width: 980px) {
   .circle-owner-controls { grid-column: 2 / -1; justify-self: end; }
 }
@@ -1404,4 +1418,6 @@ textarea { font: inherit; }
   .circle-owner-controls .circle-members-button { display: none; }
   .circle-owner-menu summary { width: 32px; height: 32px; }
   .circle-card-banner { height: 94px; }
+  .circle-members-overlay { padding: 16px; }
+  .circle-members-dialog { max-height: calc(100dvh - 32px); padding: 17px; }
 }
