@@ -39,6 +39,11 @@ export default function CircleHub({ circles, invites, basePath = "/community/cir
         <div><h1>Circles</h1><p>Private spaces for the people you choose.</p></div>
         <Link className="primary-cta" href={`${basePath}/new`}><Plus size={17} /> Create</Link>
       </header>
+      <nav className="community-mode-nav circles-mode-nav glass" aria-label="Community areas">
+        <Link href="/community">Stream</Link>
+        <Link href="/community/rooms">Rooms</Link>
+        <Link className="active" href="/community/circles">Circles</Link>
+      </nav>
       {message && <p className="social-message" role="status">{message}</p>}
 
       <div className="circles-hub-layout">
